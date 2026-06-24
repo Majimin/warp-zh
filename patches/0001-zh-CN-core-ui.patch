@@ -1,0 +1,2779 @@
+From f7e1d9da06230a32ae650e6d8aa805424252e2a4 Mon Sep 17 00:00:00 2001
+From: Chinese Localization <chinese-localization@warp.local>
+Date: Sat, 30 May 2026 23:34:33 +0800
+Subject: [PATCH] =?UTF-8?q?chore:=20=E6=B1=89=E5=8C=96=20Warp=20=E6=A0=B8?=
+ =?UTF-8?q?=E5=BF=83=20UI=20=E7=95=8C=E9=9D=A2?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+对 50 个文件共 343 处用户可见字符串进行了汉化，覆盖范围：
+
+- 应用菜单栏（文件/编辑/视图/标签页/窗口等）
+- AI 助手管理面板（筛选器、状态、标签等）
+- 代码编辑器（评论、评论编辑器）
+- 文件树右键菜单（新建/重命名/删除等）
+- 代码审查（提交/推送/PR/评论等）
+- 命令面板（搜索/导航/文件/对话等）
+- 设置界面全部页面（外观/隐私/功能/关于等）
+- 标签页右键菜单（关闭/复制/移动/共享等）
+- 终端内联横幅（Vim/AWS/SSH/别名等）
+- 云代理 UI（认证/设置/状态/提示等）
+- 新手引导提示
+- 搜索数据源标签
+---
+ app/src/ai/agent_management/view.rs           |  94 +++++------
+ app/src/app_menus.rs                          |  32 ++--
+ app/src/banner/view.rs                        |   4 +-
+ app/src/code/editor/comment_editor.rs         |  10 +-
+ app/src/code/editor/view/actions.rs           |   2 +-
+ app/src/code/file_tree/view.rs                |  24 +--
+ app/src/code_review/code_review_view.rs       |  74 ++++-----
+ .../conversations/search_item.rs              |  18 +-
+ .../command_palette/files/search_item.rs      |  14 +-
+ .../command_palette/navigation/render.rs      |  18 +-
+ .../command_palette/navigation/search_item.rs |   4 +-
+ .../new_session/new_session_option.rs         |   6 +-
+ .../new_session/search_item.rs                |   4 +-
+ .../command_palette/repos/repo_search_item.rs |   2 +-
+ .../command_palette/tabs/search_item.rs       |   4 +-
+ app/src/search/command_palette/view.rs        |   8 +-
+ .../env_var_collection_search_item.rs         |   6 +-
+ .../warp_drive/notebook_search_item.rs        |   4 +-
+ .../warp_drive/workflow_search_item.rs        |   2 +-
+ app/src/settings_view/about_page.rs           |   2 +-
+ app/src/settings_view/appearance_page.rs      |  18 +-
+ app/src/settings_view/features_page.rs        |   6 +-
+ app/src/settings_view/main_page.rs            |  22 +--
+ app/src/settings_view/mod.rs                  |  44 ++---
+ app/src/settings_view/privacy_page.rs         |  24 +--
+ app/src/settings_view/settings_page.rs        |   2 +-
+ app/src/tab.rs                                |  50 +++---
+ .../auth_secret_ftux_dropdown.rs              |   4 +-
+ .../ambient_agent/auth_secret_ftux_view.rs    |   6 +-
+ .../ambient_agent/auth_secret_selector.rs     |   8 +-
+ .../delete_auth_secret_confirmation_dialog.rs |   6 +-
+ app/src/terminal/view/ambient_agent/footer.rs |   2 +-
+ .../view/ambient_agent/harness_selector.rs    |   4 +-
+ .../view/ambient_agent/host_selector.rs       |   4 +-
+ .../view/ambient_agent/loading_screen.rs      |   6 +-
+ app/src/terminal/view/ambient_agent/model.rs  |   2 +-
+ .../view/ambient_agent/model_selector.rs      |  12 +-
+ .../view/inline_banner/agent_mode_setup.rs    |   4 +-
+ .../view/inline_banner/alias_expansion.rs     |   4 +-
+ .../anonymous_user_ai_sign_up.rs              |   4 +-
+ .../view/inline_banner/aws_bedrock_login.rs   |   6 +-
+ .../inline_banner/aws_cli_not_installed.rs    |   4 +-
+ .../inline_banner/notifications_discovery.rs  |   8 +-
+ .../view/inline_banner/notifications_error.rs |   4 +-
+ .../view/inline_banner/open_in_warp.rs        |   6 +-
+ .../view/inline_banner/shared_sessions.rs     |   2 +-
+ app/src/terminal/view/inline_banner/ssh.rs    |   8 +-
+ .../terminal/view/inline_banner/vim_mode.rs   |   4 +-
+ app/src/tips/tip_view.rs                      |  30 ++--
+ chinese_localize.sh                           | 157 ++++++++++++++++++
+ crates/warp_search_core/src/data_source.rs    |  50 +++---
+ 51 files changed, 500 insertions(+), 343 deletions(-)
+ create mode 100644 chinese_localize.sh
+
+diff --git a/app/src/ai/agent_management/view.rs b/app/src/ai/agent_management/view.rs
+index 5c7a5003d6..1ef889038f 100644
+--- a/app/src/ai/agent_management/view.rs
++++ b/app/src/ai/agent_management/view.rs
+@@ -222,7 +222,7 @@ impl AgentManagementView {
+         let list_state = Self::construct_fresh_list_state(ctx.handle());
+ 
+         let all_filter_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("All", NakedTheme)
++            ActionButton::new("全部", NakedTheme)
+                 .with_size(ButtonSize::Small)
+                 .with_tooltip("View your agent tasks plus all shared team tasks")
+                 .on_click(|ctx| {
+@@ -233,7 +233,7 @@ impl AgentManagementView {
+         });
+ 
+         let personal_filter_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Personal", NakedTheme)
++            ActionButton::new("个人", NakedTheme)
+                 .with_size(ButtonSize::Small)
+                 .with_tooltip("View agent tasks you created")
+                 .on_click(|ctx| {
+@@ -244,7 +244,7 @@ impl AgentManagementView {
+         });
+ 
+         let setup_guide_button = CompactibleActionButton::new(
+-            "Get started".to_string(),
++            "开始使用".to_string(),
+             None,
+             ButtonSize::Small,
+             AgentManagementViewAction::ToggleSetupGuide,
+@@ -254,7 +254,7 @@ impl AgentManagementView {
+         );
+ 
+         let view_agents_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("View Agents", NakedTheme)
++            ActionButton::new("查看 AI 助手", NakedTheme)
+                 .with_size(ButtonSize::Small)
+                 .with_icon(Icon::ArrowLeft)
+                 .on_click(|ctx| {
+@@ -272,7 +272,7 @@ impl AgentManagementView {
+         let creator_dropdown = ctx.add_typed_action_view(Self::create_creator_dropdown);
+ 
+         let no_filter_results_button = ctx.add_typed_action_view(move |_ctx| {
+-            ActionButton::new("Clear filters", SecondaryTheme)
++            ActionButton::new("清除筛选", SecondaryTheme)
+                 .with_size(ButtonSize::Small)
+                 .on_click(move |ctx| {
+                     ctx.dispatch_typed_action(AgentManagementViewAction::ClearFilters)
+@@ -280,7 +280,7 @@ impl AgentManagementView {
+         });
+ 
+         let clear_all_filters_button = ctx.add_typed_action_view(move |_ctx| {
+-            ActionButton::new("Clear all", NakedTheme)
++            ActionButton::new("清除全部", NakedTheme)
+                 .with_icon(Icon::X)
+                 .with_size(ButtonSize::Small)
+                 .on_click(move |ctx| {
+@@ -311,7 +311,7 @@ impl AgentManagementView {
+                 },
+                 ctx,
+             );
+-            editor.set_placeholder_text("Search", ctx);
++            editor.set_placeholder_text("搜索", ctx);
+             editor
+         });
+         ctx.subscribe_to_view(&search_editor, |me, _handle, event, ctx| {
+@@ -319,7 +319,7 @@ impl AgentManagementView {
+         });
+ 
+         let new_agent_button = CompactibleActionButton::new(
+-            "New agent".to_string(),
++            "新 AI 助手".to_string(),
+             None,
+             ButtonSize::Small,
+             AgentManagementViewAction::ShowAgentTypeSelector,
+@@ -487,7 +487,7 @@ impl AgentManagementView {
+         };
+ 
+         let mut dropdown = Dropdown::new(ctx);
+-        Self::setup_filter_menu(&mut dropdown, "Status", ctx);
++        Self::setup_filter_menu(&mut dropdown, "状态", ctx);
+ 
+         // Use this helper to make dropdown items with status icons
+         let make_status_option =
+@@ -502,22 +502,22 @@ impl AgentManagementView {
+ 
+         let items = vec![
+             make_status_option(
+-                "All",
++                "全部",
+                 AgentManagementViewAction::SetStatusFilter(StatusFilter::All),
+                 None,
+             ),
+             make_status_option(
+-                "Working",
++                "进行中",
+                 AgentManagementViewAction::SetStatusFilter(StatusFilter::Working),
+                 Some((Icon::ClockLoader, Fill::from(magenta))),
+             ),
+             make_status_option(
+-                "Done",
++                "已完成",
+                 AgentManagementViewAction::SetStatusFilter(StatusFilter::Done),
+                 Some((Icon::Check, Fill::from(green))),
+             ),
+             make_status_option(
+-                "Failed",
++                "失败",
+                 AgentManagementViewAction::SetStatusFilter(StatusFilter::Failed),
+                 Some((Icon::X, Fill::from(red))),
+             ),
+@@ -532,7 +532,7 @@ impl AgentManagementView {
+         ctx: &mut ViewContext<Dropdown<AgentManagementViewAction>>,
+     ) -> Dropdown<AgentManagementViewAction> {
+         let mut dropdown = Dropdown::new(ctx);
+-        Self::setup_filter_menu(&mut dropdown, "Source", ctx);
++        Self::setup_filter_menu(&mut dropdown, "来源", ctx);
+         // Set a max height so we can fit all of the source options without scrolling
+         dropdown.set_menu_max_height(200., ctx);
+ 
+@@ -561,7 +561,7 @@ impl AgentManagementView {
+         }
+ 
+         let mut items = vec![MenuItem::Item(
+-            MenuItemFields::new("All").with_on_select_action(
++            MenuItemFields::new("全部").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetSourceFilter(SourceFilter::All),
+                 ),
+@@ -596,25 +596,25 @@ impl AgentManagementView {
+         ctx: &mut ViewContext<Dropdown<AgentManagementViewAction>>,
+     ) -> Dropdown<AgentManagementViewAction> {
+         let mut dropdown = Dropdown::new(ctx);
+-        Self::setup_filter_menu(&mut dropdown, "Created on", ctx);
++        Self::setup_filter_menu(&mut dropdown, "创建时间", ctx);
+ 
+         let items = vec![
+-            MenuItem::Item(MenuItemFields::new("All").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("全部").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetCreatedOnFilter(CreatedOnFilter::All),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("Last 24 hours").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("最近 24 小时").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetCreatedOnFilter(CreatedOnFilter::Last24Hours),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("Past 3 days").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("过去 3 天").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetCreatedOnFilter(CreatedOnFilter::Past3Days),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("Last week").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("最近一周").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetCreatedOnFilter(CreatedOnFilter::LastWeek),
+                 ),
+@@ -630,30 +630,30 @@ impl AgentManagementView {
+         ctx: &mut ViewContext<Dropdown<AgentManagementViewAction>>,
+     ) -> Dropdown<AgentManagementViewAction> {
+         let mut dropdown = Dropdown::new(ctx);
+-        Self::setup_filter_menu(&mut dropdown, "Has artifact", ctx);
++        Self::setup_filter_menu(&mut dropdown, "包含产出", ctx);
+ 
+         let items = vec![
+-            MenuItem::Item(MenuItemFields::new("All").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("全部").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetArtifactFilter(ArtifactFilter::All),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("Pull Request").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("拉取请求").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetArtifactFilter(ArtifactFilter::PullRequest),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("Plan").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("计划").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetArtifactFilter(ArtifactFilter::Plan),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("Screenshot").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("截图").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetArtifactFilter(ArtifactFilter::Screenshot),
+                 ),
+             )),
+-            MenuItem::Item(MenuItemFields::new("File").with_on_select_action(
++            MenuItem::Item(MenuItemFields::new("文件").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetArtifactFilter(ArtifactFilter::File),
+                 ),
+@@ -669,7 +669,7 @@ impl AgentManagementView {
+         ctx: &mut ViewContext<Dropdown<AgentManagementViewAction>>,
+     ) -> Dropdown<AgentManagementViewAction> {
+         let mut dropdown = Dropdown::new(ctx);
+-        Self::setup_filter_menu(&mut dropdown, "Harness", ctx);
++        Self::setup_filter_menu(&mut dropdown, "测试框架", ctx);
+ 
+         let items = Self::build_harness_dropdown_items(ctx);
+         dropdown.set_rich_items(items, ctx);
+@@ -679,7 +679,7 @@ impl AgentManagementView {
+ 
+     fn build_harness_dropdown_items(app: &AppContext) -> Vec<MenuItem<DropdownAction>> {
+         let mut items = vec![MenuItem::Item(
+-            MenuItemFields::new("All").with_on_select_action(
++            MenuItemFields::new("全部").with_on_select_action(
+                 DropdownAction::select_action_and_close(
+                     AgentManagementViewAction::SetHarnessFilter(HarnessFilter::All),
+                 ),
+@@ -707,12 +707,12 @@ impl AgentManagementView {
+         ctx: &mut ViewContext<FilterableDropdown<AgentManagementViewAction>>,
+     ) -> FilterableDropdown<AgentManagementViewAction> {
+         let mut dropdown = FilterableDropdown::new(ctx);
+-        Self::setup_searchable_filter_menu(&mut dropdown, "Environment", ctx);
++        Self::setup_searchable_filter_menu(&mut dropdown, "环境", ctx);
+ 
+         // Keep the button compact when a specific environment ID is selected by abbreviating the
+         // displayed ID. (The dropdown menu still shows the full ID.)
+         dropdown.set_menu_header_text_override(|text| {
+-            if matches!(text, "All" | "None") {
++            if matches!(text, "全部" | "无") {
+                 return format!("Environment: {text}");
+             }
+ 
+@@ -734,7 +734,7 @@ impl AgentManagementView {
+         ctx: &mut ViewContext<FilterableDropdown<AgentManagementViewAction>>,
+     ) -> FilterableDropdown<AgentManagementViewAction> {
+         let mut dropdown = FilterableDropdown::new(ctx);
+-        Self::setup_searchable_filter_menu(&mut dropdown, "Created by", ctx);
++        Self::setup_searchable_filter_menu(&mut dropdown, "创建者", ctx);
+         dropdown
+     }
+ 
+@@ -777,14 +777,14 @@ impl AgentManagementView {
+         let envs = model.get_all_environment_ids_and_names(ctx);
+ 
+         let selected_name = match &self.filters.environment {
+-            EnvironmentFilter::All => Some("All".to_string()),
+-            EnvironmentFilter::NoEnvironment => Some("None".to_string()),
++            EnvironmentFilter::All => Some("全部".to_string()),
++            EnvironmentFilter::NoEnvironment => Some("无".to_string()),
+             EnvironmentFilter::Specific(id) => envs.get(id).cloned(),
+         };
+ 
+         self.environment_dropdown.update(ctx, |dropdown, ctx| {
+             let mut items = vec![MenuItem::Item(
+-                MenuItemFields::new("All").with_on_select_action(
++                MenuItemFields::new("全部").with_on_select_action(
+                     DropdownAction::select_action_and_close(
+                         AgentManagementViewAction::SetEnvironmentFilter(EnvironmentFilter::All),
+                     ),
+@@ -792,7 +792,7 @@ impl AgentManagementView {
+             )];
+ 
+             items.push(MenuItem::Item(
+-                MenuItemFields::new("None").with_on_select_action(
++                MenuItemFields::new("无").with_on_select_action(
+                     DropdownAction::select_action_and_close(
+                         AgentManagementViewAction::SetEnvironmentFilter(
+                             EnvironmentFilter::NoEnvironment,
+@@ -826,12 +826,12 @@ impl AgentManagementView {
+     fn update_creator_dropdown(&mut self, ctx: &mut ViewContext<Self>) {
+         let creators = AgentConversationsModel::as_ref(ctx).get_all_creators(ctx);
+         let creator_filter_name = match &self.filters.creator {
+-            CreatorFilter::All => "All",
++            CreatorFilter::All => "全部",
+             CreatorFilter::Specific { name, .. } => name,
+         };
+         self.creator_dropdown.update(ctx, |dropdown, ctx| {
+             let mut items = vec![MenuItem::Item(
+-                MenuItemFields::new("All").with_on_select_action(
++                MenuItemFields::new("全部").with_on_select_action(
+                     DropdownAction::select_action_and_close(
+                         AgentManagementViewAction::SetCreatorFilter(CreatorFilter::All),
+                     ),
+@@ -1215,7 +1215,7 @@ impl AgentManagementView {
+ 
+                 let window_id = ctx.window_id();
+                 ToastStack::handle(ctx).update(ctx, |toast_stack, ctx| {
+-                    let toast = DismissibleToast::default("Copied branch name".to_string());
++                    let toast = DismissibleToast::default("已复制分支名".to_string());
+                     toast_stack.add_ephemeral_toast(toast, window_id, ctx);
+                 });
+             }
+@@ -1506,8 +1506,8 @@ impl AgentManagementView {
+ 
+         // Early return if session is available - no status label rendered
+         let (label_text, tooltip_text_opt) = match session_status {
+-            SessionStatus::Expired => ("Session expired", Some(SESSION_EXPIRED_TEXT)),
+-            SessionStatus::Unavailable => ("No session available", None),
++            SessionStatus::Expired => ("会话已过期", Some(SESSION_EXPIRED_TEXT)),
++            SessionStatus::Unavailable => ("无可用会话", None),
+             SessionStatus::Available => return Empty::new().finish(),
+         };
+ 
+@@ -1740,7 +1740,7 @@ impl AgentManagementView {
+             .creator
+             .name
+             .clone()
+-            .unwrap_or_else(|| "Unknown".to_string());
++            .unwrap_or_else(|| "未知".to_string());
+         let avatar = Self::render_avatar_with_tooltip(
+             &creator_name,
+             appearance,
+@@ -1812,9 +1812,9 @@ impl AgentManagementView {
+                         .principal_type
+                         .is_some_and(|pt| pt.is_service_account())
+                     {
+-                        "Agent"
++                        "AI 助手"
+                     } else {
+-                        "Executor"
++                        "执行者"
+                     };
+                     metadata_parts.push(format!("{label}: {name}"));
+                 }
+@@ -1896,7 +1896,7 @@ impl AgentManagementView {
+ 
+         let build_header = |use_expanded: bool| {
+             let title = Text::new_inline(
+-                "Runs",
++                "运行记录",
+                 appearance.ui_font_family(),
+                 appearance.ui_font_size() + 4.,
+             )
+@@ -2029,7 +2029,7 @@ impl AgentManagementView {
+         let theme = appearance.theme();
+ 
+         let title = Text::new_inline(
+-            "Runs",
++            "运行记录",
+             appearance.ui_font_family(),
+             appearance.ui_font_size() + 4.,
+         )
+@@ -2051,7 +2051,7 @@ impl AgentManagementView {
+             .with_child(Container::new(loading_icon).with_margin_right(10.).finish())
+             .with_child(
+                 Text::new_inline(
+-                    "Loading agents...",
++                    "正在加载 AI 助手...",
+                     appearance.ui_font_family(),
+                     appearance.ui_font_size() + 2.,
+                 )
+@@ -2107,7 +2107,7 @@ impl AgentManagementView {
+         .finish();
+ 
+         let text = Text::new_inline(
+-            "No results matched your filters",
++            "没有符合筛选条件的结果",
+             appearance.ui_font_family(),
+             appearance.ui_font_size(),
+         )
+diff --git a/app/src/app_menus.rs b/app/src/app_menus.rs
+index d96ccbe843..184173bdd9 100644
+--- a/app/src/app_menus.rs
++++ b/app/src/app_menus.rs
+@@ -40,22 +40,22 @@ use crate::{auth, report_if_error};
+ type CheckmarkStatusGetter = dyn 'static + Fn(&mut AppContext) -> bool;
+ 
+ const ENABLE_SHELL_DEBUG_MODE_MENU_ITEM_NAME: &str =
+-    "Enable Shell Debug Mode (-x) for New Sessions";
++    "为新会话启用 Shell 调试模式 (-x)";
+ const DISABLE_SHELL_DEBUG_MODE_MENU_ITEM_NAME: &str =
+-    "Disable Shell Debug Mode (-x) for New Sessions";
+-const ENABLE_IN_BAND_GENERATORS_MENU_ITEM_NAME: &str = "Enable In-band Generators for New Sessions";
++    "为新会话禁用 Shell 调试模式 (-x)";
++const ENABLE_IN_BAND_GENERATORS_MENU_ITEM_NAME: &str = "为新会话启用带内生成器";
+ const DISABLE_IN_BAND_GENERATORS_MENU_ITEM_NAME: &str =
+-    "Disable in-band generators for new sessions";
+-const ENABLE_PTY_RECORDING: &str = "Enable PTY Recording Mode (warp.pty.recording)";
+-const DISABLE_PTY_RECORDING: &str = "Disable PTY Recording Mode (warp.pty.recording)";
+-const SHOW_BOOTSTRAP_BLOCK_MENU_ITEM_NAME: &str = "Show Initialization Block";
+-const HIDE_BOOTSTRAP_BLOCK_MENU_ITEM_NAME: &str = "Hide Initialization Block";
+-const SHOW_IN_BAND_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "Show In-band Command Blocks";
+-const HIDE_IN_BAND_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "Hide In-band Command Blocks";
+-const SHOW_SSH_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "Show Warpified SSH Blocks";
+-const HIDE_SSH_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "Hide Warpified SSH Blocks";
++    "为新会话禁用带内生成器";
++const ENABLE_PTY_RECORDING: &str = "启用 PTY 记录模式 (warp.pty.recording)";
++const DISABLE_PTY_RECORDING: &str = "禁用 PTY 记录模式 (warp.pty.recording)";
++const SHOW_BOOTSTRAP_BLOCK_MENU_ITEM_NAME: &str = "显示初始化区块";
++const HIDE_BOOTSTRAP_BLOCK_MENU_ITEM_NAME: &str = "隐藏初始化区块";
++const SHOW_IN_BAND_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "显示带内命令区块";
++const HIDE_IN_BAND_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "隐藏带内命令区块";
++const SHOW_SSH_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "显示 Warp SSH 区块";
++const HIDE_SSH_COMMAND_BLOCKS_MENU_ITEM_NAME: &str = "隐藏 Warp SSH 区块";
+ const EXPORT_DEFAULT_SETTINGS_CSV_MENU_ITEM_NAME: &str =
+-    "Export Default Settings as CSV to home dir";
++    "将默认设置导出为 CSV 到 home 目录";
+ 
+ const SETTINGS_CSV_FILE_NAME: &str = "warp_default_settings.csv";
+ const MAX_RECENT_REPOS_IN_MENU: usize = 10;
+@@ -847,7 +847,7 @@ fn debug_menu_items() -> Vec<MenuItem> {
+         }
+ 
+         debug_menu_items.push(MenuItem::Custom(CustomMenuItem::new(
+-            "Manually Toggle Network Status",
++            "手动切换网络状态",
+             move |ctx| ctx.dispatch_global_action("workspace:toggle_debug_network_status", &()),
+             no_updates,
+             None,
+@@ -881,7 +881,7 @@ fn debug_menu_items() -> Vec<MenuItem> {
+         )));
+ 
+         debug_menu_items.push(MenuItem::Custom(CustomMenuItem::new(
+-            "Create anonymous user",
++            "创建匿名用户",
+             move |ctx| ctx.dispatch_global_action("workspace:debug_create_anonymous_user", &()),
+             no_updates,
+             None,
+@@ -961,7 +961,7 @@ fn make_launch_config_menu_items(ctx: &mut AppContext) -> Vec<MenuItem> {
+ 
+     // TODO(vorporeal): use non_updateable_custom_item() here instead
+     launch_config_menu_items.push(MenuItem::Custom(CustomMenuItem::new(
+-        "Save New...",
++        "另存为新配置...",
+         custom_action_dispatcher(CustomAction::SaveCurrentConfig),
+         no_updates,
+         custom_shortcut(CustomAction::SaveCurrentConfig),
+diff --git a/app/src/banner/view.rs b/app/src/banner/view.rs
+index cd55b11d2e..f5be2e9037 100644
+--- a/app/src/banner/view.rs
++++ b/app/src/banner/view.rs
+@@ -162,7 +162,7 @@ impl<T: Action + Clone> Banner<T> {
+         Self::new_internal(content, buttons, with_close_button)
+     }
+ 
+-    /// Creates a banner with a single "Don't show me again" button
++    /// Creates a banner with a single "不再显示" button
+     /// that will permanently dismiss the banner when clicked, as well
+     /// as a close button that will temporarily dismiss it when clicked.
+     pub fn new_permanently_dismissible(content: BannerTextContent<T>) -> Self {
+@@ -175,7 +175,7 @@ impl<T: Action + Clone> Banner<T> {
+ 
+     fn permanent_dismissal_button() -> BannerTextButton {
+         BannerTextButton::new(
+-            String::from("Don't show me again"),
++            String::from("不再显示"),
+             Rc::new(|ctx, _, _| {
+                 ctx.dispatch_typed_action(BannerAction::<T>::Dismiss(DismissalType::Permanent));
+             }),
+diff --git a/app/src/code/editor/comment_editor.rs b/app/src/code/editor/comment_editor.rs
+index 9016609f1f..ad1f31dc7a 100644
+--- a/app/src/code/editor/comment_editor.rs
++++ b/app/src/code/editor/comment_editor.rs
+@@ -164,7 +164,7 @@ impl CommentEditor {
+         ViewHandle<ActionButton>,
+     ) {
+         let save_button = ctx.add_typed_action_view(|ctx| {
+-            ActionButton::new("Comment", PrimaryTheme)
++            ActionButton::new("评论", PrimaryTheme)
+                 .with_keybinding(
+                     KeystrokeSource::Fixed(Keystroke::parse("cmdorctrl-enter").unwrap_or_default()),
+                     ctx,
+@@ -180,7 +180,7 @@ impl CommentEditor {
+         });
+ 
+         let close_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Cancel", NakedTheme)
++            ActionButton::new("取消", NakedTheme)
+                 .on_click(|ctx| {
+                     ctx.dispatch_typed_action(CommentEditorAction::CloseEditor);
+                 })
+@@ -188,7 +188,7 @@ impl CommentEditor {
+         });
+ 
+         let remove_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Remove", DangerNakedTheme)
++            ActionButton::new("删除", DangerNakedTheme)
+                 .on_click(|ctx| {
+                     ctx.dispatch_typed_action(CommentEditorAction::RemoveComment);
+                 })
+@@ -276,7 +276,7 @@ impl CommentEditor {
+         self.is_imported_comment = origin.is_imported_from_github();
+ 
+         self.save_button.update(ctx, |button, ctx| {
+-            button.set_label("Update", ctx);
++            button.set_label("更新", ctx);
+         });
+         ctx.notify();
+ 
+@@ -295,7 +295,7 @@ impl CommentEditor {
+         self.is_imported_comment = false;
+ 
+         self.save_button.update(ctx, |button, ctx| {
+-            button.set_label("Comment", ctx);
++            button.set_label("评论", ctx);
+         });
+         ctx.notify();
+ 
+diff --git a/app/src/code/editor/view/actions.rs b/app/src/code/editor/view/actions.rs
+index e268381a5e..617c09ae0c 100644
+--- a/app/src/code/editor/view/actions.rs
++++ b/app/src/code/editor/view/actions.rs
+@@ -501,7 +501,7 @@ pub fn init(app: &mut AppContext) {
+         )
+         .with_context_predicate(text_entry.clone())
+         .with_key_binding("cmdorctrl-/"),
+-        EditableBinding::new("editor_view:delete", "Delete", CodeEditorViewAction::Delete)
++        EditableBinding::new("editor_view:delete", "删除", CodeEditorViewAction::Delete)
+             .with_context_predicate(
+                 text_entry.clone() & !id!("VimNormalMode") & !id!("VimVisualMode"),
+             )
+diff --git a/app/src/code/file_tree/view.rs b/app/src/code/file_tree/view.rs
+index 0ec4778407..35a3399edf 100644
+--- a/app/src/code/file_tree/view.rs
++++ b/app/src/code/file_tree/view.rs
+@@ -2332,12 +2332,12 @@ impl FileTreeView {
+                     let path_local = item.path().to_local_path_lossy();
+                     if !is_file_content_binary(&path_local) {
+                         items.extend([
+-                            MenuItemFields::new("Open in new pane")
++                            MenuItemFields::new("在新窗格中打开")
+                                 .with_on_select_action(FileTreeAction::OpenInNewPane {
+                                     id: id.clone(),
+                                 })
+                                 .into_item(),
+-                            MenuItemFields::new("Open in new tab")
++                            MenuItemFields::new("在新标签页中打开")
+                                 .with_on_select_action(FileTreeAction::OpenInNewTab {
+                                     id: id.clone(),
+                                 })
+@@ -2345,7 +2345,7 @@ impl FileTreeView {
+                         ]);
+                     } else {
+                         items.push(
+-                            MenuItemFields::new("Open file")
++                            MenuItemFields::new("打开文件")
+                                 .with_on_select_action(FileTreeAction::ItemClicked {
+                                     id: id.clone(),
+                                 })
+@@ -2364,7 +2364,7 @@ impl FileTreeView {
+                     items.push(MenuItem::Separator);
+                     if self.has_terminal_session {
+                         items.push(
+-                            MenuItemFields::new("cd to directory")
++                            MenuItemFields::new("切换到目录")
+                                 .with_on_select_action(FileTreeAction::CDToDirectory {
+                                     id: id.clone(),
+                                 })
+@@ -2372,7 +2372,7 @@ impl FileTreeView {
+                         );
+                     }
+                     items.push(
+-                        MenuItemFields::new("Open in new tab")
++                        MenuItemFields::new("在新标签页中打开")
+                             .with_on_select_action(FileTreeAction::OpenInNewTab { id: id.clone() })
+                             .into_item(),
+                     );
+@@ -2380,11 +2380,11 @@ impl FileTreeView {
+             };
+ 
+             let open_text = if cfg!(target_os = "macos") {
+-                "Reveal in Finder"
++                "在访达中显示"
+             } else if cfg!(target_os = "windows") {
+-                "Reveal in Explorer"
++                "在资源管理器中显示"
+             } else {
+-                "Reveal in file manager"
++                "在文件管理器中显示"
+             };
+             items.push(
+                 MenuItemFields::new(open_text)
+@@ -2397,7 +2397,7 @@ impl FileTreeView {
+             let is_repo_root_dir = id.index == 0;
+             if !is_repo_root_dir {
+                 items.push(
+-                    MenuItemFields::new("Rename")
++                    MenuItemFields::new("重命名")
+                         .with_on_select_action(FileTreeAction::Rename { id: id.clone() })
+                         .into_item(),
+                 );
+@@ -2414,7 +2414,7 @@ impl FileTreeView {
+                 items.push(MenuItem::Separator);
+             }
+             items.push(
+-                MenuItemFields::new("Attach as context")
++                MenuItemFields::new("附加为上下文")
+                     .with_on_select_action(FileTreeAction::AttachAsContext { id: id.clone() })
+                     .into_item(),
+             );
+@@ -2424,10 +2424,10 @@ impl FileTreeView {
+             items.push(MenuItem::Separator);
+         }
+         items.extend([
+-            MenuItemFields::new("Copy path")
++            MenuItemFields::new("复制路径")
+                 .with_on_select_action(FileTreeAction::CopyPath { id: id.clone() })
+                 .into_item(),
+-            MenuItemFields::new("Copy relative path")
++            MenuItemFields::new("复制相对路径")
+                 .with_on_select_action(FileTreeAction::CopyRelativePath { id: id.clone() })
+                 .into_item(),
+         ]);
+diff --git a/app/src/code_review/code_review_view.rs b/app/src/code_review/code_review_view.rs
+index 4ee482dff3..b2f74e13dc 100644
+--- a/app/src/code_review/code_review_view.rs
++++ b/app/src/code_review/code_review_view.rs
+@@ -207,9 +207,9 @@ where
+     .with_tooltip(move || {
+         ui_builder
+             .tool_tip(if is_sidebar_expanded {
+-                "Hide file navigation".to_owned()
++                "隐藏文件导航".to_owned()
+             } else {
+-                "Show file navigation".to_owned()
++                "显示文件导航".to_owned()
+             })
+             .build()
+             .finish()
+@@ -285,9 +285,9 @@ pub fn get_discard_button_disabled_tooltip(git_operation_blocked: bool) -> Strin
+ /// live shortcut for `code_review:toggle_file_navigation` when one is bound.
+ fn file_nav_button_tooltip(is_sidebar_expanded: bool, app: &AppContext) -> String {
+     let label = if is_sidebar_expanded {
+-        "Hide file navigation"
++        "隐藏文件导航"
+     } else {
+-        "Show file navigation"
++        "显示文件导航"
+     };
+     match keybinding_name_to_display_string("code_review:toggle_file_navigation", app) {
+         Some(shortcut) => format!("{label} ({shortcut})"),
+@@ -609,7 +609,7 @@ pub struct CodeReviewView {
+     undo_action_button: ViewHandle<ActionButton>,
+     last_revert: Option<(ViewHandle<CodeEditorView>, ContentVersion)>,
+     containing_pane_id: Option<PaneId>,
+-    // Header-specific dropdown menu ("Add diff set as context" / "Add comment")
++    // Header-specific dropdown menu ("添加差异集作为上下文" / "添加评论")
+     header_menu: ViewHandle<Menu<CodeReviewAction>>,
+     header_menu_open: bool,
+     view_position_id: String,
+@@ -1105,7 +1105,7 @@ impl CodeReviewView {
+         let maximize_button = ctx.add_typed_action_view(move |_| {
+             // Since the view isn't part of a pane group yet, default to not-maximized. The button will be updated
+             //when focus state changes.
+-            let (icon, tooltip_text) = (Icon::Maximize, "Maximize");
++            let (icon, tooltip_text) = (Icon::Maximize, "最大化");
+ 
+             ActionButton::new("", NakedTheme)
+                 .with_icon(icon)
+@@ -1134,7 +1134,7 @@ impl CodeReviewView {
+         });
+ 
+         let git_primary_action_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Commit", SecondaryTheme)
++            ActionButton::new("提交", SecondaryTheme)
+                 .with_size(ButtonSize::Small)
+                 .with_icon(Icon::GitCommit)
+                 .with_adjoined_side(AdjoinedSide::Right)
+@@ -1175,7 +1175,7 @@ impl CodeReviewView {
+ 
+         let undo_action_button = ctx.add_typed_action_view(move |ctx| {
+             let keybinding = custom_tag_to_keystroke(CustomAction::Undo.into());
+-            let mut action_button = ActionButton::new("Undo", NakedTheme)
++            let mut action_button = ActionButton::new("撤销", NakedTheme)
+                 .with_size(ButtonSize::Small)
+                 .on_click(move |ctx| {
+                     ctx.dispatch_typed_action(WorkspaceAction::UndoRevertInCodeReviewPane {
+@@ -1192,7 +1192,7 @@ impl CodeReviewView {
+         });
+ 
+         let discard_confirm_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Discard changes", DangerPrimaryTheme)
++            ActionButton::new("丢弃更改", DangerPrimaryTheme)
+                 .on_click(|ctx| ctx.dispatch_typed_action(CodeReviewAction::ConfirmDiscardFile))
+         });
+ 
+@@ -1265,7 +1265,7 @@ impl CodeReviewView {
+         let header = CodeReviewHeader::new();
+ 
+         let init_project_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Initialize codebase", NakedTheme)
++            ActionButton::new("初始化代码库", NakedTheme)
+                 .with_size(ButtonSize::Small)
+                 .with_tooltip("Enables codebase indexing and WARP.md")
+                 .with_tooltip_alignment(TooltipAlignment::Center)
+@@ -1276,7 +1276,7 @@ impl CodeReviewView {
+ 
+         #[cfg(not(target_family = "wasm"))]
+         let open_repository_button = ctx.add_typed_action_view(|_ctx| {
+-            ActionButton::new("Open repository", NakedTheme)
++            ActionButton::new("打开仓库", NakedTheme)
+                 .with_size(ButtonSize::Small)
+                 .with_tooltip("Navigate to a repo and initialize it for coding")
+                 .with_tooltip_alignment(TooltipAlignment::Center)
+@@ -1392,9 +1392,9 @@ impl CodeReviewView {
+ 
+         let is_maximized = focus_handle.is_maximized(ctx);
+         let (icon, tooltip) = if is_maximized {
+-            (Icon::Minimize, "Restore")
++            (Icon::Minimize, "还原")
+         } else {
+-            (Icon::Maximize, "Maximize")
++            (Icon::Maximize, "最大化")
+         };
+ 
+         self.maximize_button.update(ctx, |button, ctx| {
+@@ -2562,7 +2562,7 @@ impl CodeReviewView {
+         let discard_tooltip_text = if git_operation_blocked {
+             get_discard_button_disabled_tooltip(git_operation_blocked)
+         } else {
+-            "Discard changes".to_string()
++            "丢弃更改".to_string()
+         };
+ 
+         let mut file_states = vec![];
+@@ -2650,7 +2650,7 @@ impl CodeReviewView {
+                 ActionButton::new("", NakedTheme)
+                     .with_icon(Icon::Paperclip)
+                     .with_size(ButtonSize::InlineActionHeader)
+-                    .with_tooltip("Add file diff as context")
++                    .with_tooltip("添加文件差异作为上下文")
+                     .on_click(move |ctx| {
+                         ctx.dispatch_typed_action(CodeReviewAction::AddDiffSetAsContext(
+                             DiffSetScope::File(context_path.clone()),
+@@ -2663,7 +2663,7 @@ impl CodeReviewView {
+                 ActionButton::new("", NakedTheme)
+                     .with_icon(Icon::Copy)
+                     .with_size(ButtonSize::InlineActionHeader)
+-                    .with_tooltip("Copy file path")
++                    .with_tooltip("复制文件路径")
+                     .on_click(move |ctx| {
+                         ctx.dispatch_typed_action(CodeReviewAction::CopyFilePath(copy_path.clone()))
+                     })
+@@ -2875,7 +2875,7 @@ impl CodeReviewView {
+             Some(GitSessionState {
+                 enablement: CodingPanelEnablementState::RemoteSession { .. },
+             }) => {
+-                // No "Open repository" CTA when the session is remote — the
++                // No "打开仓库" CTA when the session is remote — the
+                 // button navigates to a local folder, which is not meaningful
+                 // in a remote session.
+                 Self::render_remote_state(appearance, None)
+@@ -6277,7 +6277,7 @@ impl CodeReviewView {
+     /// view state, because the loaded state reflects whatever diff mode the
+     /// user currently has selected (e.g. `MainBranch`). In non-`Head` modes
+     /// committed changes still appear in the stats, so using them here would
+-    /// make the button stay on "Commit" after a successful commit.
++    /// make the button stay on "提交" after a successful commit.
+     fn has_uncommitted_changes(&self, app: &AppContext) -> bool {
+         self.diff_state_model
+             .as_ref(app)
+@@ -6514,10 +6514,10 @@ impl CodeReviewView {
+             PrimaryGitActionMode::Commit => {
+                 let disabled = !self.has_uncommitted_changes(ctx);
+                 self.git_primary_action_button.update(ctx, |button, ctx| {
+-                    button.set_label("Commit", ctx);
++                    button.set_label("提交", ctx);
+                     button.set_icon(Some(Icon::GitCommit), ctx);
+                     button.set_disabled(disabled, ctx);
+-                    button.set_tooltip(disabled.then_some("No changes to commit"), ctx);
++                    button.set_tooltip(disabled.then_some("没有更改可提交"), ctx);
+                     button.set_on_click(
+                         |ctx| ctx.dispatch_typed_action(CodeReviewAction::OpenCommitDialog),
+                         ctx,
+@@ -6526,12 +6526,12 @@ impl CodeReviewView {
+                 });
+                 self.git_operations_chevron.update(ctx, |button, ctx| {
+                     button.set_disabled(disabled, ctx);
+-                    button.set_tooltip(disabled.then_some("No git actions available"), ctx);
++                    button.set_tooltip(disabled.then_some("没有可用的 Git 操作"), ctx);
+                 });
+             }
+             PrimaryGitActionMode::Push => {
+                 self.git_primary_action_button.update(ctx, |button, ctx| {
+-                    button.set_label("Push", ctx);
++                    button.set_label("推送", ctx);
+                     button.set_icon(Some(Icon::ArrowUp), ctx);
+                     button.set_disabled(false, ctx);
+                     button.clear_tooltip(ctx);
+@@ -6547,7 +6547,7 @@ impl CodeReviewView {
+             }
+             PrimaryGitActionMode::CreatePr => {
+                 self.git_primary_action_button.update(ctx, |button, ctx| {
+-                    button.set_label("Create PR", ctx);
++                    button.set_label("创建 PR", ctx);
+                     button.set_icon(Some(Icon::Github), ctx);
+                     button.set_disabled(false, ctx);
+                     button.clear_tooltip(ctx);
+@@ -6585,7 +6585,7 @@ impl CodeReviewView {
+             }
+             PrimaryGitActionMode::Publish => {
+                 self.git_primary_action_button.update(ctx, |button, ctx| {
+-                    button.set_label("Publish", ctx);
++                    button.set_label("发布", ctx);
+                     button.set_icon(Some(Icon::UploadCloud), ctx);
+                     button.set_disabled(false, ctx);
+                     button.clear_tooltip(ctx);
+@@ -6601,11 +6601,11 @@ impl CodeReviewView {
+         ctx.notify();
+     }
+ 
+-    /// Returns the "Commit" dropdown item. Label/icon/action are fixed;
++    /// Returns the "提交" dropdown item. Label/icon/action are fixed;
+     /// only the disabled state flips across modes (enabled in Commit mode,
+     /// disabled in Push mode where there's nothing to commit).
+     fn commit_menu_item(disabled: bool) -> MenuItem<CodeReviewAction> {
+-        MenuItemFields::new("Commit")
++        MenuItemFields::new("提交")
+             .with_icon(Icon::GitCommit)
+             .with_on_select_action(CodeReviewAction::OpenCommitDialog)
+             .with_disabled(disabled)
+@@ -6617,13 +6617,13 @@ impl CodeReviewView {
+     /// sets the upstream).
+     fn push_or_publish_menu_item(has_upstream: bool, disabled: bool) -> MenuItem<CodeReviewAction> {
+         if has_upstream {
+-            MenuItemFields::new("Push")
++            MenuItemFields::new("推送")
+                 .with_icon(Icon::ArrowUp)
+                 .with_on_select_action(CodeReviewAction::OpenPushDialog)
+                 .with_disabled(disabled)
+                 .into_item()
+         } else {
+-            MenuItemFields::new("Publish")
++            MenuItemFields::new("发布")
+                 .with_icon(Icon::UploadCloud)
+                 .with_on_select_action(CodeReviewAction::PublishBranch)
+                 .with_disabled(disabled)
+@@ -6632,7 +6632,7 @@ impl CodeReviewView {
+     }
+ 
+     /// Returns the PR dropdown item: "PR #N" linking to the existing PR, or
+-    /// "Create PR" to open the dialog. Create PR is disabled on main, when the
++    /// "创建 PR" to open the dialog. Create PR is disabled on main, when the
+     /// branch has no upstream, or when the upstream is the same ref as main
+     /// (e.g. a worktree branch whose tracking was auto-set to origin/master).
+     fn pr_menu_item(&self, app: &AppContext) -> MenuItem<CodeReviewAction> {
+@@ -6648,7 +6648,7 @@ impl CodeReviewView {
+             let is_on_main = diff_state.is_on_main_branch(app);
+             let has_upstream = diff_state.upstream_ref(app).is_some();
+             let upstream_differs_from_main = diff_state.upstream_differs_from_main(app);
+-            MenuItemFields::new("Create PR")
++            MenuItemFields::new("创建 PR")
+                 .with_icon(Icon::Github)
+                 .with_on_select_action(CodeReviewAction::OpenCreatePrDialog)
+                 .with_disabled(
+@@ -6722,7 +6722,7 @@ impl CodeReviewView {
+ 
+         if FeatureFlag::DiffSetAsContext.is_enabled() && has_changes {
+             items.push(
+-                MenuItemFields::new("Add diff set as context")
++                MenuItemFields::new("添加差异集作为上下文")
+                     .with_icon(Icon::Paperclip)
+                     .with_on_select_action(CodeReviewAction::AddDiffSetAsContext(DiffSetScope::All))
+                     .into_item(),
+@@ -6730,9 +6730,9 @@ impl CodeReviewView {
+         }
+ 
+         let (comment_label, comment_icon) = if self.get_existing_diffset_comment(ctx).is_some() {
+-            ("Show saved comment", Icon::MessageText)
++            ("显示已保存的评论", Icon::MessageText)
+         } else {
+-            ("Add comment", Icon::MessagePlusSquare)
++            ("添加评论", Icon::MessagePlusSquare)
+         };
+ 
+         items.push(
+@@ -6757,7 +6757,7 @@ impl CodeReviewView {
+         let is_ai_enabled = AISettings::as_ref(ctx).is_any_ai_enabled(ctx);
+         if is_ai_enabled && FeatureFlag::DiffSetAsContext.is_enabled() && has_changes {
+             items.push(
+-                MenuItemFields::new("Add diff set as context")
++                MenuItemFields::new("添加差异集作为上下文")
+                     .with_icon(Icon::Paperclip)
+                     .with_on_select_action(CodeReviewAction::AddDiffSetAsContext(DiffSetScope::All))
+                     .into_item(),
+@@ -6767,9 +6767,9 @@ impl CodeReviewView {
+         if FeatureFlag::FileAndDiffSetComments.is_enabled() && has_changes {
+             let (comment_label, comment_icon) = if self.get_existing_diffset_comment(ctx).is_some()
+             {
+-                ("Show saved comment", Icon::MessageText)
++                ("显示已保存的评论", Icon::MessageText)
+             } else {
+-                ("Add comment", Icon::MessagePlusSquare)
++                ("添加评论", Icon::MessagePlusSquare)
+             };
+ 
+             items.push(
+@@ -6782,7 +6782,7 @@ impl CodeReviewView {
+ 
+         if FeatureFlag::DiscardPerFileAndAllChanges.is_enabled() && has_changes {
+             items.push(
+-                MenuItemFields::new("Discard all")
++                MenuItemFields::new("丢弃全部")
+                     .with_icon(Icon::ReverseLeft)
+                     .with_on_select_action(CodeReviewAction::ShowDiscardConfirmDialog(None))
+                     .into_item(),
+diff --git a/app/src/search/command_palette/conversations/search_item.rs b/app/src/search/command_palette/conversations/search_item.rs
+index 27b4427b1d..5405f6ce7d 100644
+--- a/app/src/search/command_palette/conversations/search_item.rs
++++ b/app/src/search/command_palette/conversations/search_item.rs
+@@ -68,7 +68,7 @@ impl ConversationSearchItem {
+         Flex::row()
+             .with_child(
+                 Text::new_inline(
+-                    "New conversation",
++                    "新对话",
+                     appearance.ui_font_family(),
+                     appearance.monospace_font_size(),
+                 )
+@@ -89,7 +89,7 @@ impl ConversationSearchItem {
+         let appearance = Appearance::as_ref(app);
+ 
+         let action_title = Text::new_inline(
+-            "Fork current conversation",
++            "分叉当前对话",
+             appearance.ui_font_family(),
+             appearance.monospace_font_size(),
+         )
+@@ -243,7 +243,7 @@ impl ConversationSearchItem {
+ 
+             let fork_button_tool_tip = appearance
+                 .ui_builder()
+-                .tool_tip("Fork conversation".to_string())
++                .tool_tip("分叉对话".to_string())
+                 .build();
+ 
+             let fork_button_inner = icon_button(
+@@ -416,27 +416,27 @@ impl SearchItem for ConversationSearchItem {
+         match &self.action_info {
+             ConversationAction::Resume(matched_conversation) => {
+                 format!(
+-                    "Conversation: {}",
++                    "对话：{}",
+                     matched_conversation.as_ref().conversation.title()
+                 )
+             }
+             ConversationAction::Fork { title, .. } => {
+-                format!("Fork current conversation ({title})")
++                format!("分叉当前对话 ({title})")
+             }
+-            ConversationAction::New => "New conversation".to_string(),
++            ConversationAction::New => "新对话".to_string(),
+         }
+     }
+ 
+     fn accessibility_help_message(&self) -> Option<String> {
+         match &self.action_info {
+             ConversationAction::Resume(matched_conversation) => Some(format!(
+-                "Press enter to navigate to conversation \"{}\".",
++                "按 Enter 导航到对话\"{}\"。",
+                 matched_conversation.as_ref().conversation.title()
+             )),
+             ConversationAction::Fork { .. } => {
+-                Some("Press enter to fork the current conversation into a new conversation.".into())
++                Some("按 Enter 将当前对话分叉为新对话".into())
+             }
+-            ConversationAction::New => Some("Press enter to create a new conversation.".into()),
++            ConversationAction::New => Some("按 Enter 创建新对话".into()),
+         }
+     }
+ }
+diff --git a/app/src/search/command_palette/files/search_item.rs b/app/src/search/command_palette/files/search_item.rs
+index 8dccbdacd5..89230f1f56 100644
+--- a/app/src/search/command_palette/files/search_item.rs
++++ b/app/src/search/command_palette/files/search_item.rs
+@@ -97,17 +97,17 @@ impl SearchItem for FileSearchItem {
+ 
+     fn accessibility_label(&self) -> String {
+         if self.is_directory {
+-            format!("Directory: {}", self.path.display())
++            format!("目录：{}", self.path.display())
+         } else {
+-            format!("File: {}", self.path.display())
++            format!("文件：{}", self.path.display())
+         }
+     }
+ 
+     fn accessibility_help_message(&self) -> Option<String> {
+         Some(if self.is_directory {
+-            "Press Enter to navigate to this directory".to_string()
++            "按 Enter 导航到此目录".to_string()
+         } else {
+-            "Press Enter to open this file".to_string()
++            "按 Enter 打开此文件".to_string()
+         })
+     }
+ 
+@@ -161,7 +161,7 @@ impl SearchItem for CreateFileSearchItem {
+         let text_color = highlight_state.sub_text_fill(appearance).into_solid();
+ 
+         let label = Text::new_inline(
+-            format!("Create a file named {}…", &self.file_name),
++            format!("创建文件 {}…", &self.file_name),
+             appearance.ui_font_family(),
+             appearance.monospace_font_size(),
+         )
+@@ -195,12 +195,12 @@ impl SearchItem for CreateFileSearchItem {
+     }
+ 
+     fn accessibility_label(&self) -> String {
+-        format!("Create file: {}", self.file_name)
++        format!("创建文件：{}", self.file_name)
+     }
+ 
+     fn accessibility_help_message(&self) -> Option<String> {
+         Some(format!(
+-            "Press Enter to create {} in the current directory",
++            "按 Enter 在当前目录中创建 {}",
+             self.file_name
+         ))
+     }
+diff --git a/app/src/search/command_palette/navigation/render.rs b/app/src/search/command_palette/navigation/render.rs
+index 0de4c430a2..892e9e8c3e 100644
+--- a/app/src/search/command_palette/navigation/render.rs
++++ b/app/src/search/command_palette/navigation/render.rs
+@@ -105,7 +105,7 @@ fn render_current_session_pill(
+ ) -> Box<dyn Element> {
+     let current_session_pill = appearance
+         .ui_builder()
+-        .span("Current".to_string())
++        .span("当前".to_string())
+         .with_style(UiComponentStyles {
+             font_family_id: Some(appearance.monospace_font_family()),
+             // The font size is scaled down to make sure the pill fits in the row with its padding.
+@@ -337,7 +337,7 @@ impl CommandRenderInfo {
+         match command_context {
+             CommandContext::RunningCommand { running_command } => CommandRenderInfo {
+                 command_text: Some(running_command),
+-                hint_text: "Running...".to_string(),
++                hint_text: "运行中...".to_string(),
+                 row_spacing: styles::NAVIGATION_PALETTE_COMMAND_ROW_SPACING,
+                 hint_margin: styles::NAVIGATION_PALETTE_COMMAND_HINT_MARGIN,
+             },
+@@ -355,27 +355,27 @@ impl CommandRenderInfo {
+                 },
+                 command_text: Some(last_run_command),
+                 hint_text: match mins_since_completion {
+-                    Some(mins) if mins >= 60 => "Completed over 1 hour ago".to_string(),
+-                    Some(mins) if mins == 1 => format!("Completed {mins} minute ago"),
+-                    Some(mins) => format!("Completed {mins} minutes ago"),
+-                    None => "No timestamp found".to_string(),
++                    Some(mins) if mins >= 60 => "已完成超过 1 小时".to_string(),
++                    Some(mins) if mins == 1 => format!("已完成 {mins} 分钟"),
++                    Some(mins) => format!("已完成 {mins} 分钟"),
++                    None => "未找到时间戳".to_string(),
+                 },
+             },
+             CommandContext::RunningAIBlock { prompt } => CommandRenderInfo {
+                 command_text: Some(prompt),
+-                hint_text: "Running...".to_string(),
++                hint_text: "运行中...".to_string(),
+                 row_spacing: styles::NAVIGATION_PALETTE_COMMAND_ROW_SPACING,
+                 hint_margin: styles::NAVIGATION_PALETTE_COMMAND_HINT_MARGIN,
+             },
+             CommandContext::LastRunAIBlock { prompt } => CommandRenderInfo {
+                 command_text: Some(prompt),
+-                hint_text: "Completed".to_string(),
++                hint_text: "已完成".to_string(),
+                 row_spacing: styles::NAVIGATION_PALETTE_COMMAND_ROW_SPACING,
+                 hint_margin: styles::NAVIGATION_PALETTE_COMMAND_HINT_MARGIN,
+             },
+             CommandContext::None => CommandRenderInfo {
+                 command_text: Some(String::new()),
+-                hint_text: "Empty Session".to_string(),
++                hint_text: "空会话".to_string(),
+                 row_spacing: 0.,
+                 hint_margin: 0.,
+             },
+diff --git a/app/src/search/command_palette/navigation/search_item.rs b/app/src/search/command_palette/navigation/search_item.rs
+index d6a97206f4..82d9f9ca90 100644
+--- a/app/src/search/command_palette/navigation/search_item.rs
++++ b/app/src/search/command_palette/navigation/search_item.rs
+@@ -103,7 +103,7 @@ impl crate::search::item::SearchItem for SearchItem {
+ 
+     fn accessibility_label(&self) -> String {
+         format!(
+-            "Selected {}. {}.",
++            "已选择：{}. {}.",
+             self.navigation_data().prompt(),
+             self.navigation_data()
+                 .command_context()
+@@ -113,6 +113,6 @@ impl crate::search::item::SearchItem for SearchItem {
+     }
+ 
+     fn accessibility_help_message(&self) -> Option<String> {
+-        Some("Press enter to navigate to this session.".into())
++        Some("按 Enter 导航到此会话".into())
+     }
+ }
+diff --git a/app/src/search/command_palette/new_session/new_session_option.rs b/app/src/search/command_palette/new_session/new_session_option.rs
+index 572127d08d..11eb353d5a 100644
+--- a/app/src/search/command_palette/new_session/new_session_option.rs
++++ b/app/src/search/command_palette/new_session/new_session_option.rs
+@@ -83,12 +83,12 @@ impl NewSessionOption {
+ impl NewSessionOption {
+     pub(super) fn new(id: NewSessionOptionId, config: NewSessionConfig) -> Self {
+         let description = match &config {
+-            NewSessionConfig::NewTab(shell) => format!("Create New Tab: {}", shell.short_name()),
++            NewSessionConfig::NewTab(shell) => format!("新建标签页：{}", shell.short_name()),
+             NewSessionConfig::NewWindow(shell) => {
+-                format!("Create New Window: {}", shell.short_name())
++                format!("新建窗口：{}", shell.short_name())
+             }
+             NewSessionConfig::Split(direction, shell) => {
+-                format!("Split Pane {direction}: {}", shell.short_name())
++                format!("拆分窗格 {direction}：{}", shell.short_name())
+             }
+         };
+         Self {
+diff --git a/app/src/search/command_palette/new_session/search_item.rs b/app/src/search/command_palette/new_session/search_item.rs
+index e1deb8940a..fc250d72c7 100644
+--- a/app/src/search/command_palette/new_session/search_item.rs
++++ b/app/src/search/command_palette/new_session/search_item.rs
+@@ -74,10 +74,10 @@ impl crate::search::item::SearchItem for SearchItem {
+     }
+ 
+     fn accessibility_label(&self) -> String {
+-        format!("Selected {}.", self.option.description())
++        format!("已选择：{}.", self.option.description())
+     }
+ 
+     fn accessibility_help_message(&self) -> Option<String> {
+-        Some("Press enter to launch this session.".into())
++        Some("按 Enter 启动此会话".into())
+     }
+ }
+diff --git a/app/src/search/command_palette/repos/repo_search_item.rs b/app/src/search/command_palette/repos/repo_search_item.rs
+index 7be1a5a84e..750821719c 100644
+--- a/app/src/search/command_palette/repos/repo_search_item.rs
++++ b/app/src/search/command_palette/repos/repo_search_item.rs
+@@ -135,6 +135,6 @@ impl SearchItem for RepoSearchItem {
+     }
+ 
+     fn accessibility_label(&self) -> String {
+-        format!("Repo: {}", self.metadata.path.display())
++        format!("仓库：{}", self.metadata.path.display())
+     }
+ }
+diff --git a/app/src/search/command_palette/tabs/search_item.rs b/app/src/search/command_palette/tabs/search_item.rs
+index 3c92a2e02f..a5ae88a3b9 100644
+--- a/app/src/search/command_palette/tabs/search_item.rs
++++ b/app/src/search/command_palette/tabs/search_item.rs
+@@ -99,12 +99,12 @@ impl SearchItemTrait for SearchItem {
+     }
+ 
+     fn accessibility_label(&self) -> String {
+-        format!("Selected tab: {}.", self.tab.title)
++        format!("选中标签页：{}.", self.tab.title)
+     }
+ 
+     fn accessibility_help_message(&self) -> Option<String> {
+         Some(format!(
+-            "Press enter to navigate to tab: {}.",
++            "按 Enter 导航到标签页：{}.",
+             self.tab.title
+         ))
+     }
+diff --git a/app/src/search/command_palette/view.rs b/app/src/search/command_palette/view.rs
+index 753756c219..63b84032c5 100644
+--- a/app/src/search/command_palette/view.rs
++++ b/app/src/search/command_palette/view.rs
+@@ -279,7 +279,7 @@ impl View {
+             SearchBar::new(
+                 mixer.clone(),
+                 search_bar_state.clone(),
+-                "Search for a command",
++                "搜索命令",
+                 Self::create_query_result_renderer,
+                 ctx,
+             )
+@@ -291,7 +291,7 @@ impl View {
+         });
+ 
+         let placeholder_element = QueryResultRenderer::new(
+-            MatchedBinding::placeholder("No results found".into()).into(),
++            MatchedBinding::placeholder("未找到结果".into()).into(),
+             "command_palette:no_results".into(),
+             |_, _, _| {},
+             *styles::QUERY_RESULT_RENDERER_STYLES,
+@@ -836,7 +836,7 @@ impl View {
+                         ToastStack::handle(ctx).update(ctx, |toast_stack, ctx| {
+                             toast_stack.add_ephemeral_toast(
+                                 DismissibleToast::error(
+-                                    "Cannot switch conversations while agent is monitoring a command."
++                                    "Agent 正在监控命令，无法切换对话。"
+                                         .to_string(),
+                                 ),
+                                 window_id,
+@@ -977,7 +977,7 @@ impl View {
+                     ToastStack::handle(ctx).update(ctx, |toast_stack, ctx| {
+                         toast_stack.add_ephemeral_toast(
+                             DismissibleToast::error(
+-                                "Cannot start a new conversation while agent is monitoring a command.".to_string(),
++                                "Agent 正在监控命令，无法开始新对话。".to_string(),
+                             ),
+                             window_id,
+                             ctx,
+diff --git a/app/src/search/command_palette/warp_drive/env_var_collection_search_item.rs b/app/src/search/command_palette/warp_drive/env_var_collection_search_item.rs
+index ae83606d92..e0573c8ce4 100644
+--- a/app/src/search/command_palette/warp_drive/env_var_collection_search_item.rs
++++ b/app/src/search/command_palette/warp_drive/env_var_collection_search_item.rs
+@@ -63,7 +63,7 @@ impl SearchItem for EnvVarCollectionSearchItem {
+                 .string_model
+                 .title
+                 .clone()
+-                .unwrap_or("Untitled".to_owned())
++                .unwrap_or("未命名".to_owned())
+                 .to_owned(),
+             appearance.ui_font_family(),
+             appearance.monospace_font_size(),
+@@ -164,13 +164,13 @@ impl SearchItem for EnvVarCollectionSearchItem {
+ 
+     fn accessibility_label(&self) -> String {
+         format!(
+-            "Environment Variables: {}",
++            "环境变量：{}",
+             self.cloud_env_var_collection
+                 .model()
+                 .string_model
+                 .title
+                 .clone()
+-                .unwrap_or("Untitled".to_owned())
++                .unwrap_or("未命名".to_owned())
+         )
+     }
+ }
+diff --git a/app/src/search/command_palette/warp_drive/notebook_search_item.rs b/app/src/search/command_palette/warp_drive/notebook_search_item.rs
+index 362ada2a6d..06e1e507c3 100644
+--- a/app/src/search/command_palette/warp_drive/notebook_search_item.rs
++++ b/app/src/search/command_palette/warp_drive/notebook_search_item.rs
+@@ -62,7 +62,7 @@ impl SearchItem for NotebookSearchItem {
+     ) -> Box<dyn Element> {
+         let appearance = Appearance::as_ref(app);
+         let title = if self.cloud_notebook.model().title.is_empty() {
+-            "Untitled".to_string()
++            "未命名".to_string()
+         } else {
+             self.cloud_notebook.model().title.clone()
+         };
+@@ -142,6 +142,6 @@ impl SearchItem for NotebookSearchItem {
+     }
+ 
+     fn accessibility_label(&self) -> String {
+-        format!("Notebook: {}", self.cloud_notebook.model().title)
++        format!("笔记本：{}", self.cloud_notebook.model().title)
+     }
+ }
+diff --git a/app/src/search/command_palette/warp_drive/workflow_search_item.rs b/app/src/search/command_palette/warp_drive/workflow_search_item.rs
+index 25b9a1938b..d2a2701cd9 100644
+--- a/app/src/search/command_palette/warp_drive/workflow_search_item.rs
++++ b/app/src/search/command_palette/warp_drive/workflow_search_item.rs
+@@ -149,6 +149,6 @@ impl SearchItem for WorkflowSearchItem {
+     }
+ 
+     fn accessibility_label(&self) -> String {
+-        format!("Workflow: {}", self.cloud_workflow.model().data.name())
++        format!("工作流：{}", self.cloud_workflow.model().data.name())
+     }
+ }
+diff --git a/app/src/settings_view/about_page.rs b/app/src/settings_view/about_page.rs
+index 8d4a233726..be61923bc9 100644
+--- a/app/src/settings_view/about_page.rs
++++ b/app/src/settings_view/about_page.rs
+@@ -115,7 +115,7 @@ impl SettingsWidget for AboutPageWidget {
+                 .with_child(version_row.finish())
+                 .with_child(
+                     ui_builder
+-                        .span("Copyright 2026 Warp")
++                        .span("版权所有 2026 Warp")
+                         .build()
+                         .with_margin_top(16.)
+                         .finish(),
+diff --git a/app/src/settings_view/appearance_page.rs b/app/src/settings_view/appearance_page.rs
+index feefba1e9b..e661679c0e 100644
+--- a/app/src/settings_view/appearance_page.rs
++++ b/app/src/settings_view/appearance_page.rs
+@@ -1317,7 +1317,7 @@ impl AppearanceSettingsPageView {
+ 
+     fn build_page(ctx: &mut ViewContext<Self>) -> PageType<Self> {
+         let mut categories = vec![Category::new(
+-            "Themes",
++            "主题",
+             vec![
+                 Box::new(CreateCustomThemeWidget::default()),
+                 Box::new(ThemeSelectWidget::default()),
+@@ -1326,7 +1326,7 @@ impl AppearanceSettingsPageView {
+ 
+         if AppIconSettings::as_ref(ctx).is_supported_on_current_platform() {
+             categories.push(Category::new(
+-                "Icon",
++                "图标",
+                 vec![Box::new(CustomAppIconWidget::default())],
+             ));
+         }
+@@ -1370,7 +1370,7 @@ impl AppearanceSettingsPageView {
+         }
+ 
+         if !window_settings_widgets.is_empty() {
+-            categories.push(Category::new("Window", window_settings_widgets));
++            categories.push(Category::new("窗口", window_settings_widgets));
+         }
+ 
+         // Create the Input category with all widgets
+@@ -1382,10 +1382,10 @@ impl AppearanceSettingsPageView {
+             Box::new(InputModeWidget::default()),
+         ];
+ 
+-        categories.push(Category::new("Input", category_widgets));
++        categories.push(Category::new("输入", category_widgets));
+ 
+         categories.push(Category::new(
+-            "Panes",
++            "窗格",
+             vec![
+                 Box::new(DimInactivePanesWidget::default()),
+                 Box::new(FocusFollowsMouseWidget::default()),
+@@ -1399,7 +1399,7 @@ impl AppearanceSettingsPageView {
+         if FeatureFlag::MinimalistUI.is_enabled() {
+             block_settings_widgets.push(Box::new(ShowBlockDividersWidget::default()));
+         }
+-        categories.push(Category::new("Blocks", block_settings_widgets));
++        categories.push(Category::new("区块", block_settings_widgets));
+ 
+         let font_settings = FontSettings::as_ref(ctx);
+         let mut text_settings_widgets: Vec<Box<dyn SettingsWidget<View = Self>>> = vec![
+@@ -1428,10 +1428,10 @@ impl AppearanceSettingsPageView {
+             text_settings_widgets.push(Box::new(LigaturesWidget::default()));
+         }
+ 
+-        categories.push(Category::new("Text", text_settings_widgets));
++        categories.push(Category::new("文本", text_settings_widgets));
+ 
+         categories.push(Category::new(
+-            "Cursor",
++            "光标",
+             vec![
+                 Box::new(CursorTypeWidget::default()),
+                 Box::new(BlinkingCursorWidget::default()),
+@@ -1477,7 +1477,7 @@ impl AppearanceSettingsPageView {
+             tab_settings_widgets.push(Box::new(DirectoryTabColorsWidget { add_picker }));
+         }
+ 
+-        categories.push(Category::new("Tabs", tab_settings_widgets));
++        categories.push(Category::new("标签页", tab_settings_widgets));
+ 
+         categories.push(Category::new(
+             "Full-screen Apps",
+diff --git a/app/src/settings_view/features_page.rs b/app/src/settings_view/features_page.rs
+index 9d770a37fe..079dba23ce 100644
+--- a/app/src/settings_view/features_page.rs
++++ b/app/src/settings_view/features_page.rs
+@@ -699,7 +699,7 @@ pub fn init_actions_from_parent_view<T: Action + Clone>(
+     ToggleSettingActionPair::add_toggle_setting_action_pairs_as_bindings(toggle_binding_pairs, app);
+ 
+     app.register_fixed_bindings([FixedBinding::empty(
+-        "Configure Global Hotkey",
++        "配置全局热键",
+         WorkspaceAction::ScrollToSettingsWidget {
+             page: SettingsSection::Features,
+             widget_id: GlobalHotkeyWidget::static_widget_id(),
+@@ -4127,7 +4127,7 @@ impl FeaturesPageView {
+                 padding: Some(Coords::default().right(10.)),
+                 ..Default::default()
+             })
+-            .with_text_label("Cancel".to_string())
++            .with_text_label("取消".to_string())
+             .build()
+             .on_click(move |ctx, _, _| {
+                 ctx.dispatch_typed_action(cancel_action.clone());
+@@ -4139,7 +4139,7 @@ impl FeaturesPageView {
+             appearance
+                 .ui_builder()
+                 .button(ButtonVariant::Text, save_button_mouse_state)
+-                .with_text_label("Save".to_string())
++                .with_text_label("保存".to_string())
+                 .build()
+                 .on_click(move |ctx, _, _| {
+                     ctx.dispatch_typed_action(save_action.clone());
+diff --git a/app/src/settings_view/main_page.rs b/app/src/settings_view/main_page.rs
+index 54e10cad3d..b1daad951e 100644
+--- a/app/src/settings_view/main_page.rs
++++ b/app/src/settings_view/main_page.rs
+@@ -50,7 +50,7 @@ const PHOTO_SIZE: f32 = 40.;
+ const REFERRAL_CTA: &str = "Earn rewards by sharing Warp with friends & colleagues";
+ const REGULAR_TEXT_FONT_SIZE: f32 = 12.;
+ const VERTICAL_MARGIN: f32 = 24.;
+-const LOG_OUT_TEXT: &str = "Log out";
++const LOG_OUT_TEXT: &str = "退出登录";
+ lazy_static! {
+     static ref SETTINGS_SYNC_BINDINGS_ADDED: Arc<Mutex<bool>> = Default::default();
+ }
+@@ -349,7 +349,7 @@ impl AccountWidget {
+                 self.ui_state_handles.anonymous_user_sign_up_button.clone(),
+             )
+             .with_style(button_styles)
+-            .with_text_label("Sign up".to_owned())
++            .with_text_label("注册".to_owned())
+             .build()
+             .on_click(move |ctx, _, _| {
+                 ctx.dispatch_typed_action(MainPageAction::SignupAnonymousUser);
+@@ -361,7 +361,7 @@ impl AccountWidget {
+             .with_cross_axis_alignment(CrossAxisAlignment::End);
+         let current_user_id = auth_state.user_id().unwrap_or_default();
+ 
+-        plan_info.add_child(render_customer_type_badge(appearance, "Free".into()));
++        plan_info.add_child(render_customer_type_badge(appearance, "免费".into()));
+         plan_info.add_child(
+             Container::new(
+                 appearance
+@@ -373,7 +373,7 @@ impl AccountWidget {
+                     .with_text_and_icon_label(
+                         TextAndIcon::new(
+                             TextAndIconAlignment::IconFirst,
+-                            "Compare plans",
++                            "比较套餐",
+                             Icon::CoinsStacked.to_warpui_icon(appearance.theme().accent()),
+                             MainAxisSize::Min,
+                             MainAxisAlignment::Center,
+@@ -509,7 +509,7 @@ impl AccountWidget {
+                         appearance
+                             .ui_builder()
+                             .link(
+-                                "Contact support".into(),
++                                "联系支持".into(),
+                                 Some("mailto:support@warp.dev".into()),
+                                 None,
+                                 self.ui_state_handles.enterprise_contact_us_link.clone(),
+@@ -526,7 +526,7 @@ impl AccountWidget {
+                             appearance
+                                 .ui_builder()
+                                 .link(
+-                                    "Manage billing".into(),
++                                    "管理账单".into(),
+                                     None,
+                                     Some(Box::new(move |ctx| {
+                                         ctx.dispatch_typed_action(
+@@ -549,7 +549,7 @@ impl AccountWidget {
+                         let description = match team.billing_metadata.customer_type {
+                             CustomerType::Prosumer => "Upgrade to Turbo plan",
+                             CustomerType::Turbo => "Upgrade to Lightspeed plan",
+-                            _ => "Compare plans",
++                            _ => "比较套餐",
+                         };
+                         let team_uid = team.uid;
+                         plan_info.add_child(
+@@ -575,14 +575,14 @@ impl AccountWidget {
+                 }
+             }
+         } else {
+-            let plan_badge_child = render_customer_type_badge(appearance, "Free".into());
++            let plan_badge_child = render_customer_type_badge(appearance, "免费".into());
+             plan_info.add_child(plan_badge_child);
+ 
+             plan_info.add_child(
+                 appearance
+                     .ui_builder()
+                     .link(
+-                        "Compare plans".into(),
++                        "比较套餐".into(),
+                         None,
+                         Some(Box::new(move |ctx| {
+                             ctx.dispatch_typed_action(MainPageAction::Upgrade {
+@@ -712,7 +712,7 @@ impl SettingsWidget for SettingsSyncWidget {
+         };
+ 
+         Container::new(render_body_item::<MainPageAction>(
+-            "Settings sync".to_string(),
++            "设置同步".to_string(),
+             Some(label_info),
+             // Cloud prefs are always synced, so no need to show the local-only icon.
+             LocalOnlyIconState::Hidden,
+@@ -796,7 +796,7 @@ impl SettingsWidget for EarnRewardsWidget {
+                 appearance
+                     .ui_builder()
+                     .link(
+-                        "Refer a friend".into(),
++                        "推荐好友".into(),
+                         None,
+                         Some(Box::new(move |ctx| {
+                             ctx.dispatch_typed_action(WorkspaceAction::ShowReferralSettingsPage);
+diff --git a/app/src/settings_view/mod.rs b/app/src/settings_view/mod.rs
+index b64b35d34e..8c3dc4ce7b 100644
+--- a/app/src/settings_view/mod.rs
++++ b/app/src/settings_view/mod.rs
+@@ -168,7 +168,7 @@ pub(super) fn render_beta_chip(appearance: &Appearance) -> Box<dyn Element> {
+     let theme = appearance.theme();
+     let chip_color = theme.sub_text_color(theme.surface_3()).into_solid();
+     Container::new(
+-        Text::new_inline("BETA", appearance.ui_font_family(), 10.)
++        Text::new_inline("测试版", appearance.ui_font_family(), 10.)
+             .with_color(chip_color)
+             .finish(),
+     )
+@@ -281,20 +281,20 @@ use crate::util::bindings::custom_tag_to_keystroke;
+ impl Display for SettingsSection {
+     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+         match self {
+-            SettingsSection::BillingAndUsage => write!(f, "Billing and usage"),
+-            SettingsSection::Keybindings => write!(f, "Keyboard shortcuts"),
+-            SettingsSection::SharedBlocks => write!(f, "Shared blocks"),
+-            SettingsSection::MCPServers => write!(f, "MCP Servers"),
++            SettingsSection::BillingAndUsage => write!(f, "计费与用量"),
++            SettingsSection::Keybindings => write!(f, "快捷键"),
++            SettingsSection::SharedBlocks => write!(f, "共享块"),
++            SettingsSection::MCPServers => write!(f, "MCP 服务器"),
+             SettingsSection::WarpDrive => write!(f, "Warp Drive"),
+             SettingsSection::WarpAgent => write!(f, "Warp Agent"),
+-            SettingsSection::AgentProfiles => write!(f, "Profiles"),
++            SettingsSection::AgentProfiles => write!(f, "配置文件"),
+             SettingsSection::AgentMCPServers => write!(f, "MCP servers"),
+-            SettingsSection::Knowledge => write!(f, "Knowledge"),
+-            SettingsSection::ThirdPartyCLIAgents => write!(f, "Third party CLI agents"),
+-            SettingsSection::CodeIndexing => write!(f, "Indexing and projects"),
+-            SettingsSection::EditorAndCodeReview => write!(f, "Editor and Code Review"),
+-            SettingsSection::CloudEnvironments => write!(f, "Environments"),
+-            SettingsSection::OzCloudAPIKeys => write!(f, "Oz Cloud API Keys"),
++            SettingsSection::Knowledge => write!(f, "知识库"),
++            SettingsSection::ThirdPartyCLIAgents => write!(f, "第三方 CLI 代理"),
++            SettingsSection::CodeIndexing => write!(f, "索引与项目"),
++            SettingsSection::EditorAndCodeReview => write!(f, "编辑器与代码审查"),
++            SettingsSection::CloudEnvironments => write!(f, "环境"),
++            SettingsSection::OzCloudAPIKeys => write!(f, "Oz Cloud API 密钥"),
+             _ => write!(f, "{self:?}"),
+         }
+     }
+@@ -374,28 +374,28 @@ impl FromStr for SettingsSection {
+             "About" => Ok(Self::About),
+             "Account" => Ok(Self::Account),
+             "AI" => Ok(Self::AI),
+-            "MCP Servers" => Ok(Self::MCPServers),
+-            "Billing and usage" => Ok(Self::BillingAndUsage),
++            "MCP 服务器" => Ok(Self::MCPServers),
++            "计费与用量" => Ok(Self::BillingAndUsage),
+             "Appearance" => Ok(Self::Appearance),
+             "Code" => Ok(Self::Code),
+             "Features" => Ok(Self::Features),
+-            "Keyboard shortcuts" => Ok(Self::Keybindings),
++            "快捷键" => Ok(Self::Keybindings),
+             "Privacy" => Ok(Self::Privacy),
+             "Referrals" => Ok(Self::Referrals),
+-            "Shared blocks" => Ok(Self::SharedBlocks),
++            "共享块" => Ok(Self::SharedBlocks),
+             "Teams" => Ok(Self::Teams),
+             "Warpify" => Ok(Self::Warpify),
+             "WarpDrive" | "Warp Drive" => Ok(Self::WarpDrive),
+             // This page was called "Oz" at one point, keep for backward compatibility.
+             "Oz" | "Warp Agent" => Ok(Self::WarpAgent),
+-            "Profiles" | "AgentProfiles" => Ok(Self::AgentProfiles),
++            "配置文件" | "AgentProfiles" => Ok(Self::AgentProfiles),
+             "MCP servers" | "AgentMCPServers" => Ok(Self::AgentMCPServers),
+-            "Knowledge" => Ok(Self::Knowledge),
+-            "Third party CLI agents" | "ThirdPartyCLIAgents" => Ok(Self::ThirdPartyCLIAgents),
+-            "Indexing and projects" | "CodeIndexing" => Ok(Self::CodeIndexing),
+-            "Editor and Code Review" | "EditorAndCodeReview" => Ok(Self::EditorAndCodeReview),
++            "知识库" => Ok(Self::Knowledge),
++            "第三方 CLI 代理" | "ThirdPartyCLIAgents" => Ok(Self::ThirdPartyCLIAgents),
++            "索引与项目" | "CodeIndexing" => Ok(Self::CodeIndexing),
++            "编辑器与代码审查" | "EditorAndCodeReview" => Ok(Self::EditorAndCodeReview),
+             "CloudEnvironments" => Ok(Self::CloudEnvironments),
+-            "Oz Cloud API Keys" | "OzCloudAPIKeys" => Ok(Self::OzCloudAPIKeys),
++            "Oz Cloud API 密钥" | "OzCloudAPIKeys" => Ok(Self::OzCloudAPIKeys),
+             _ => Err(()),
+         }
+     }
+diff --git a/app/src/settings_view/privacy_page.rs b/app/src/settings_view/privacy_page.rs
+index beb3492521..14cd9b16f7 100644
+--- a/app/src/settings_view/privacy_page.rs
++++ b/app/src/settings_view/privacy_page.rs
+@@ -61,14 +61,14 @@ use crate::{report_if_error, send_telemetry_from_ctx};
+ 
+ const FONT_SIZE: f32 = 12.;
+ 
+-const SAFE_MODE_TITLE: &str = "Secret redaction";
++const SAFE_MODE_TITLE: &str = "机密信息脱敏";
+ static SAFE_MODE_DESCRIPTION: LazyLock<&'static str> = LazyLock::new(|| {
+     "When this setting is enabled, Warp will scan blocks, the contents of \
+         Warp Drive objects, and Oz prompts for potential sensitive \
+         information and prevent saving or sending this data to any \
+         servers. You can customize this list via regexes."
+ });
+-const USER_SECRET_REGEX_TITLE: &str = "Custom secret redaction";
++const USER_SECRET_REGEX_TITLE: &str = "自定义机密信息脱敏";
+ const USER_SECRET_REGEX_DESCRIPTION: &str =
+     "Use regex to define additional secrets or data you'd like to redact. This will take effect \
+     when the next command runs. You can use the inline (?i) flag as a prefix to your regex \
+@@ -85,13 +85,13 @@ const TELEMETRY_FREE_TIER_NOTE: &str =
+ const TELEMETRY_DOCS_URL: &str =
+     "https://docs.warp.dev/support-and-community/privacy-and-security/privacy#what-telemetry-data-does-warp-collect-and-why";
+ 
+-const DATA_MANAGEMENT_TITLE: &str = "Manage your data";
++const DATA_MANAGEMENT_TITLE: &str = "管理你的数据";
+ const DATA_MANAGEMENT_DESCRIPTION: &str =
+     "At any time, you may choose to delete your Warp account permanently. \
+     You will no longer be able to use Warp.";
+ const DATA_MANAGEMENT_LINK_TEXT: &str = "Visit the data management page";
+ 
+-const PRIVACY_POLICY_TITLE: &str = "Privacy policy";
++const PRIVACY_POLICY_TITLE: &str = "隐私政策";
+ const PRIVACY_POLICY_LINK_TEXT: &str = "Read Warp's privacy policy";
+ 
+ pub fn data_management_url(custom_token: Option<&str>) -> String {
+@@ -156,7 +156,7 @@ impl PrivacyPageView {
+         });
+ 
+         let add_regex_modal_view = ctx.add_typed_action_view(|ctx| {
+-            Modal::new(Some("Add regex pattern".to_string()), add_regex_body, ctx)
++            Modal::new(Some("添加正则表达式".to_string()), add_regex_body, ctx)
+                 .with_modal_style(UiComponentStyles {
+                     width: Some(600.),
+                     height: Some(400.),
+@@ -760,7 +760,7 @@ impl SecretRedactionWidget {
+             .count();
+ 
+         let personal_tab = self.render_tab(
+-            "Personal".to_string(),
++            "个人".to_string(),
+             personal_count,
+             SecretRedactionTab::Personal,
+             active_tab == SecretRedactionTab::Personal,
+@@ -771,7 +771,7 @@ impl SecretRedactionWidget {
+         let is_enterprise_tab_active = active_tab == SecretRedactionTab::Enterprise;
+ 
+         let enterprise_tab = self.render_tab(
+-            "Enterprise".to_string(),
++            "企业".to_string(),
+             enterprise_count,
+             SecretRedactionTab::Enterprise,
+             is_enterprise_tab_active,
+@@ -998,7 +998,7 @@ impl SecretRedactionWidget {
+         if !recommended_regexes.is_empty() {
+             column.add_child(self.horizontal_divider(appearance));
+ 
+-            // Add the "Recommended" header with "Add all" button
++            // Add the "推荐" header with "全部添加" button
+             column.add_child(
+                 Container::new(
+                     Flex::row()
+@@ -1006,7 +1006,7 @@ impl SecretRedactionWidget {
+                         .with_main_axis_alignment(MainAxisAlignment::SpaceBetween)
+                         .with_cross_axis_alignment(CrossAxisAlignment::Center)
+                         .with_child(
+-                            self.render_section_title("Recommended".to_string(), appearance),
++                            self.render_section_title("推荐".to_string(), appearance),
+                         )
+                         .with_child(
+                             Container::new(
+@@ -1016,7 +1016,7 @@ impl SecretRedactionWidget {
+                                         self.add_all_button_mouse_state.clone(),
+                                     )
+                                     .with_text_and_icon_label(Self::add_button(
+-                                        "Add all", appearance,
++                                        "全部添加", appearance,
+                                     ))
+                                     .with_style(Self::add_button_style())
+                                     .build()
+@@ -1320,7 +1320,7 @@ impl SettingsWidget for SecretRedactionWidget {
+                                 ButtonVariant::Secondary,
+                                 self.add_regex_button_mouse_state.clone(),
+                             )
+-                            .with_text_and_icon_label(Self::add_button("Add regex", appearance))
++                            .with_text_and_icon_label(Self::add_button("添加正则", appearance))
+                             .with_style(Self::add_button_style())
+                             .build()
+                             .on_click(move |ctx, _, _| {
+@@ -1618,7 +1618,7 @@ impl SettingsWidget for CrashReportsWidget {
+         let privacy_settings = PrivacySettings::as_ref(app);
+         Flex::column()
+             .with_child(render_body_item::<PrivacyPageAction>(
+-                "Send crash reports".into(),
++                "发送崩溃报告".into(),
+                 None,
+                 // Crash report state is always synced to cloud, so no need to show local only icon.
+                 LocalOnlyIconState::Hidden,
+diff --git a/app/src/settings_view/settings_page.rs b/app/src/settings_view/settings_page.rs
+index a235c872f8..7d8ff3de50 100644
+--- a/app/src/settings_view/settings_page.rs
++++ b/app/src/settings_view/settings_page.rs
+@@ -1918,5 +1918,5 @@ pub(super) fn build_reset_button(
+             font_size: Some(appearance.ui_font_size() * 0.8),
+             ..Default::default()
+         })
+-        .with_text_label("Reset to default".to_owned())
++        .with_text_label("重置为默认值".to_owned())
+ }
+diff --git a/app/src/tab.rs b/app/src/tab.rs
+index edff3e17e9..546d16163f 100644
+--- a/app/src/tab.rs
++++ b/app/src/tab.rs
+@@ -241,7 +241,7 @@ impl TabData {
+                     .is_active_sharer()
+                 {
+                     menu_items.push(
+-                        MenuItemFields::new("Stop sharing")
++                        MenuItemFields::new("停止共享")
+                             .with_on_select_action(WorkspaceAction::StopSharingSessionFromTabMenu {
+                                 terminal_view_id: focused_session_view.id(),
+                             })
+@@ -249,7 +249,7 @@ impl TabData {
+                     );
+                 } else {
+                     menu_items.push(
+-                        MenuItemFields::new("Share session")
++                        MenuItemFields::new("共享会话")
+                             .with_on_select_action(WorkspaceAction::OpenShareSessionModal(index))
+                             .into_item(),
+                     );
+@@ -259,7 +259,7 @@ impl TabData {
+             // Always show an option to stop sharing all when there's at least 1 shared session in the tab.
+             if !shared_session_view_ids.is_empty() {
+                 menu_items.push(
+-                    MenuItemFields::new("Stop sharing all")
++                    MenuItemFields::new("停止全部共享")
+                         .with_on_select_action(WorkspaceAction::StopSharingAllSessionsInTab {
+                             pane_group: self.pane_group.downgrade(),
+                         })
+@@ -268,7 +268,7 @@ impl TabData {
+             }
+         }
+ 
+-        // Add "Copy link" option if the focused session in this tab is being shared or viewed
++        // Add "复制链接" option if the focused session in this tab is being shared or viewed
+         let is_shared_or_viewed = self
+             .pane_group
+             .as_ref(ctx)
+@@ -284,7 +284,7 @@ impl TabData {
+ 
+         if is_shared_or_viewed {
+             menu_items.push(
+-                MenuItemFields::new("Copy link")
++                MenuItemFields::new("复制链接")
+                     .with_on_select_action(WorkspaceAction::CopySharedSessionLinkFromTab {
+                         tab_index: index,
+                     })
+@@ -319,7 +319,7 @@ impl TabData {
+         let mut menu_items = vec![];
+         let tab_title = Self::copyable_metadata_value(Some(pane_group.display_title(ctx)));
+         if !uses_vertical_tabs(ctx) {
+-            Self::push_copy_metadata_menu_item(&mut menu_items, "Copy tab title", tab_title);
++            Self::push_copy_metadata_menu_item(&mut menu_items, "复制标签标题", tab_title);
+             return menu_items;
+         }
+ 
+@@ -339,7 +339,7 @@ impl TabData {
+                 })
+                 .unwrap_or_else(|| pane_group.focused_pane_id(ctx));
+             (
+-                "Copy pane title",
++                "复制窗格标题",
+                 Self::copyable_pane_title(pane_group, pane_id, ctx),
+                 pane_group.terminal_view_from_pane_id(pane_id, ctx),
+             )
+@@ -350,20 +350,20 @@ impl TabData {
+                     pane_group.terminal_view_from_pane_id(target.locator.pane_id, ctx)
+                 })
+                 .or_else(|| pane_group.focused_session_view(ctx));
+-            ("Copy tab title", tab_title, terminal_view)
++            ("复制标签标题", tab_title, terminal_view)
+         };
+ 
+         if let Some(terminal_view) = terminal_view {
+             let terminal_view = terminal_view.as_ref(ctx);
+             Self::push_copy_metadata_menu_item(
+                 &mut menu_items,
+-                "Copy branch",
++                "复制分支",
+                 Self::copyable_metadata_value(terminal_view.current_git_branch(ctx)),
+             );
+             Self::push_copy_metadata_menu_item(&mut menu_items, title_label, title);
+             Self::push_copy_metadata_menu_item(
+                 &mut menu_items,
+-                "Copy working directory",
++                "复制工作目录",
+                 Self::copyable_metadata_value(
+                     terminal_view
+                         .pwd()
+@@ -372,7 +372,7 @@ impl TabData {
+             );
+             Self::push_copy_metadata_menu_item(
+                 &mut menu_items,
+-                "Copy pull request link",
++                "复制 Pull Request 链接",
+                 Self::copyable_metadata_value(terminal_view.current_pull_request_url(ctx)),
+             );
+         } else {
+@@ -412,7 +412,7 @@ impl TabData {
+ 
+         // TODO add option to show the keybinding once we figure out a nice API to retrieve
+         // the actual keybinding (based on the user's preferences etc.)
+-        menu_items.append(&mut vec![MenuItemFields::new("Rename tab")
++        menu_items.append(&mut vec![MenuItemFields::new("重命名标签")
+             .with_on_select_action(WorkspaceAction::RenameTab(index))
+             .into_item()]);
+         // Group together with rename option (note, resetting doesn't make
+@@ -420,7 +420,7 @@ impl TabData {
+         let title = self.pane_group.as_ref(ctx).custom_title(ctx);
+         if title.is_some() {
+             menu_items.push(
+-                MenuItemFields::new("Reset tab name")
++                MenuItemFields::new("重置标签名")
+                     .with_on_select_action(WorkspaceAction::ResetTabName(index))
+                     .into_item(),
+             );
+@@ -434,9 +434,9 @@ impl TabData {
+         if not_last_tab {
+             menu_items.push(
+                 MenuItemFields::new(if uses_vertical_tabs {
+-                    "Move Tab Down"
++                    "向下移动标签"
+                 } else {
+-                    "Move Tab Right"
++                    "向右移动标签"
+                 })
+                 .with_on_select_action(WorkspaceAction::MoveTabRight(index))
+                 .into_item(),
+@@ -445,9 +445,9 @@ impl TabData {
+         if index != 0 {
+             menu_items.push(
+                 MenuItemFields::new(if uses_vertical_tabs {
+-                    "Move Tab Up"
++                    "向上移动标签"
+                 } else {
+-                    "Move Tab Left"
++                    "向左移动标签"
+                 })
+                 .with_on_select_action(WorkspaceAction::MoveTabLeft(index))
+                 .into_item(),
+@@ -498,14 +498,14 @@ impl TabData {
+ 
+         if ContextFlag::CloseWindow.is_enabled() || tabs_len != 1 {
+             menu_items.push(
+-                MenuItemFields::new("Close tab")
++                MenuItemFields::new("关闭标签")
+                     .with_on_select_action(WorkspaceAction::CloseTab(index))
+                     .into_item(),
+             );
+         }
+         if tabs_len > 1 {
+             menu_items.push(
+-                MenuItemFields::new("Close other tabs")
++                MenuItemFields::new("关闭其他标签")
+                     .with_on_select_action(WorkspaceAction::CloseOtherTabs(index))
+                     .into_item(),
+             );
+@@ -514,7 +514,7 @@ impl TabData {
+         if not_last_tab {
+             menu_items.push(
+                 MenuItemFields::new(if uses_vertical_tabs {
+-                    "Close Tabs Below"
++                    "关闭下方标签"
+                 } else {
+                     "Close Tabs to the Right"
+                 })
+@@ -529,7 +529,7 @@ impl TabData {
+         if !FeatureFlag::TabConfigs.is_enabled() {
+             return vec![];
+         }
+-        vec![MenuItemFields::new("Save as new config")
++        vec![MenuItemFields::new("另存为新配置")
+             .with_on_select_action(WorkspaceAction::SaveCurrentTabAsNewConfig(index))
+             .into_item()]
+     }
+@@ -540,8 +540,8 @@ impl TabData {
+             return vec![];
+         }
+         vec![
+-            MenuItemFields::new("New group with tab").into_item(),
+-            MenuItemFields::new_submenu("Move to group").into_item(),
++            MenuItemFields::new("新建标签组").into_item(),
++            MenuItemFields::new_submenu("移动到组").into_item(),
+         ]
+     }
+ 
+@@ -593,7 +593,7 @@ impl TabData {
+                             Some(id) => id.to_ansi_color(&terminal_colors).into(),
+                         };
+                         let tooltip = match ansi_id {
+-                            None => "Default (no color)".to_string(),
++                            None => "默认（无颜色）".to_string(),
+                             Some(id) => id.to_string(),
+                         };
+ 
+@@ -1291,7 +1291,7 @@ impl<'a> TabComponent<'a> {
+ 
+                         if state.is_hovered() {
+                             let tooltip = ui_builder
+-                                .tool_tip("Cloud agent run".to_string())
++                                .tool_tip("云端代理运行".to_string())
+                                 .build()
+                                 .finish();
+                             stack.add_positioned_overlay_child(
+diff --git a/app/src/terminal/view/ambient_agent/auth_secret_ftux_dropdown.rs b/app/src/terminal/view/ambient_agent/auth_secret_ftux_dropdown.rs
+index 24b964c11d..a94b1db4d3 100644
+--- a/app/src/terminal/view/ambient_agent/auth_secret_ftux_dropdown.rs
++++ b/app/src/terminal/view/ambient_agent/auth_secret_ftux_dropdown.rs
+@@ -358,7 +358,7 @@ impl AuthSecretFtuxDropdown {
+                 }
+                 if !matched {
+                     items.push(MenuItem::Item(
+-                        MenuItemFields::new("No secrets found")
++                        MenuItemFields::new("未找到密钥")
+                             .with_font_size_override(FONT_SIZE)
+                             .with_padding_override(
+                                 MENU_ITEM_VERTICAL_PADDING,
+@@ -380,7 +380,7 @@ impl AuthSecretFtuxDropdown {
+             }
+             AuthSecretFetchState::Failed(_) => {
+                 items.push(MenuItem::Item(
+-                    MenuItemFields::new("Unable to load secrets")
++                    MenuItemFields::new("无法加载密钥")
+                         .with_font_size_override(FONT_SIZE)
+                         .with_padding_override(MENU_ITEM_VERTICAL_PADDING, MENU_HORIZONTAL_PADDING)
+                         .with_disabled(true)
+diff --git a/app/src/terminal/view/ambient_agent/auth_secret_ftux_view.rs b/app/src/terminal/view/ambient_agent/auth_secret_ftux_view.rs
+index c65c76fc5b..8cba028af7 100644
+--- a/app/src/terminal/view/ambient_agent/auth_secret_ftux_view.rs
++++ b/app/src/terminal/view/ambient_agent/auth_secret_ftux_view.rs
+@@ -986,9 +986,9 @@ impl AuthSecretFtuxView {
+         row.add_child(Expanded::new(1., Empty::new().finish()).finish());
+ 
+         let (label, action) = if self.creation_state.is_some() {
+-            ("Back", AuthSecretFtuxAction::Back)
++            ("返回", AuthSecretFtuxAction::Back)
+         } else {
+-            ("Cancel", AuthSecretFtuxAction::Cancel)
++            ("取消", AuthSecretFtuxAction::Cancel)
+         };
+         row.add_child(self.render_button(
+             label,
+@@ -1002,7 +1002,7 @@ impl AuthSecretFtuxView {
+         let accent_fill = Appearance::as_ref(app).theme().accent();
+         let continue_disabled = !self.can_submit_creation_form(app);
+         row.add_child(self.render_button(
+-            "Continue",
++            "继续",
+             self.continue_mouse_state.clone(),
+             Some(accent_fill),
+             AuthSecretFtuxAction::Continue,
+diff --git a/app/src/terminal/view/ambient_agent/auth_secret_selector.rs b/app/src/terminal/view/ambient_agent/auth_secret_selector.rs
+index bc2307d54e..a931a24f5d 100644
+--- a/app/src/terminal/view/ambient_agent/auth_secret_selector.rs
++++ b/app/src/terminal/view/ambient_agent/auth_secret_selector.rs
+@@ -52,15 +52,15 @@ const SIDECAR_HORIZONTAL_GAP: f32 = 4.;
+ 
+ const MENU_MAX_HEIGHT: f32 = 280.;
+ 
+-const BUTTON_TOOLTIP: &str = "API key";
++const BUTTON_TOOLTIP: &str = "API 密钥";
+ 
+-const MENU_HEADER_LABEL: &str = "API key";
++const MENU_HEADER_LABEL: &str = "API 密钥";
+ 
+-const SIDECAR_HEADER_LABEL: &str = "Choose a type";
++const SIDECAR_HEADER_LABEL: &str = "选择类型";
+ 
+ const NO_SECRET_LABEL: &str = "Inherit key from environment";
+ 
+-const NEW_ITEM_LABEL: &str = "New";
++const NEW_ITEM_LABEL: &str = "新建";
+ 
+ const MAIN_MENU_SAVE_POSITION_ID: &str = "auth_secret_selector_main_menu";
+ type PendingDeleteKey = (Harness, String, SecretOwner);
+diff --git a/app/src/terminal/view/ambient_agent/delete_auth_secret_confirmation_dialog.rs b/app/src/terminal/view/ambient_agent/delete_auth_secret_confirmation_dialog.rs
+index 89cda409f9..f7637e5b79 100644
+--- a/app/src/terminal/view/ambient_agent/delete_auth_secret_confirmation_dialog.rs
++++ b/app/src/terminal/view/ambient_agent/delete_auth_secret_confirmation_dialog.rs
+@@ -43,13 +43,13 @@ pub(super) struct DeleteAuthSecretConfirmationDialog {
+ impl DeleteAuthSecretConfirmationDialog {
+     pub(super) fn new(ctx: &mut ViewContext<Self>) -> Self {
+         let cancel_button = ctx.add_typed_action_view(|_| {
+-            ActionButton::new("Cancel", NakedTheme).on_click(|ctx| {
++            ActionButton::new("取消", NakedTheme).on_click(|ctx| {
+                 ctx.dispatch_typed_action(DeleteAuthSecretConfirmationDialogAction::Cancel);
+             })
+         });
+ 
+         let delete_button = ctx.add_typed_action_view(|_| {
+-            ActionButton::new("Delete", DangerPrimaryTheme).on_click(|ctx| {
++            ActionButton::new("删除", DangerPrimaryTheme).on_click(|ctx| {
+                 ctx.dispatch_typed_action(DeleteAuthSecretConfirmationDialogAction::Confirm);
+             })
+         });
+@@ -101,7 +101,7 @@ impl View for DeleteAuthSecretConfirmationDialog {
+         );
+ 
+         let dialog = Dialog::new(
+-            "Delete secret".to_string(),
++            "删除密钥".to_string(),
+             Some(description),
+             dialog_styles(appearance),
+         )
+diff --git a/app/src/terminal/view/ambient_agent/footer.rs b/app/src/terminal/view/ambient_agent/footer.rs
+index f7f85a648e..dbf09db072 100644
+--- a/app/src/terminal/view/ambient_agent/footer.rs
++++ b/app/src/terminal/view/ambient_agent/footer.rs
+@@ -104,7 +104,7 @@ pub fn render_error_footer(error_message: &str, appearance: &Appearance) -> Box<
+     let border_color = theme.ui_error_color();
+ 
+     build_centered_footer(
+-        "Agent failed".to_string(),
++        "代理失败".to_string(),
+         error_message.to_string(),
+         header_color,
+         body_color,
+diff --git a/app/src/terminal/view/ambient_agent/harness_selector.rs b/app/src/terminal/view/ambient_agent/harness_selector.rs
+index 9e1fbc3612..87627ed19c 100644
+--- a/app/src/terminal/view/ambient_agent/harness_selector.rs
++++ b/app/src/terminal/view/ambient_agent/harness_selector.rs
+@@ -54,10 +54,10 @@ const MENU_WIDTH: f32 = 208.;
+ const ITEM_ICON_SIZE: f32 = 16.;
+ 
+ /// Tooltip string for the closed-state button.
+-const BUTTON_TOOLTIP: &str = "Agent harness";
++const BUTTON_TOOLTIP: &str = "代理执行器";
+ 
+ /// Label rendered at the top of the dropdown.
+-const MENU_HEADER_LABEL: &str = "Agent harness";
++const MENU_HEADER_LABEL: &str = "代理执行器";
+ 
+ /// Actions dispatched by the [`HarnessSelector`].
+ #[derive(Clone, Debug, PartialEq)]
+diff --git a/app/src/terminal/view/ambient_agent/host_selector.rs b/app/src/terminal/view/ambient_agent/host_selector.rs
+index 93f40ebe28..d6ddce6a7c 100644
+--- a/app/src/terminal/view/ambient_agent/host_selector.rs
++++ b/app/src/terminal/view/ambient_agent/host_selector.rs
+@@ -37,9 +37,9 @@ const HEADER_VERTICAL_PADDING: f32 = 6.;
+ 
+ const MENU_WIDTH: f32 = 208.;
+ 
+-const BUTTON_TOOLTIP: &str = "Execution host";
++const BUTTON_TOOLTIP: &str = "执行主机";
+ 
+-const MENU_HEADER_LABEL: &str = "Execution host";
++const MENU_HEADER_LABEL: &str = "执行主机";
+ 
+ #[derive(Clone, Debug, PartialEq, Eq)]
+ pub enum Host {
+diff --git a/app/src/terminal/view/ambient_agent/loading_screen.rs b/app/src/terminal/view/ambient_agent/loading_screen.rs
+index e6f4d782cf..e16ca14111 100644
+--- a/app/src/terminal/view/ambient_agent/loading_screen.rs
++++ b/app/src/terminal/view/ambient_agent/loading_screen.rs
+@@ -49,7 +49,7 @@ pub fn render_cloud_mode_loading_screen(
+         // Add link at the end if it exists
+         if let Some(link_target) = tip.link() {
+             fragments.push(FormattedTextFragment::plain_text(" "));
+-            fragments.push(FormattedTextFragment::hyperlink("Learn more", link_target));
++            fragments.push(FormattedTextFragment::hyperlink("了解更多", link_target));
+         }
+ 
+         let formatted_text = FormattedText::new(vec![FormattedTextLine::Line(fragments)]);
+@@ -163,7 +163,7 @@ fn render_tier_limits_footer(
+         .current_team()
+         .map(|team| UserWorkspaces::upgrade_link_for_team(team.uid))?;
+ 
+-    fragments.push(FormattedTextFragment::hyperlink("Upgrade", upgrade_url));
++    fragments.push(FormattedTextFragment::hyperlink("升级", upgrade_url));
+     fragments.push(FormattedTextFragment::plain_text(
+         " for more powerful cloud agents.",
+     ));
+@@ -233,7 +233,7 @@ pub fn render_cloud_mode_error_screen(
+ 
+     // Error title text
+     let title_text = Text::new(
+-        "Failed to start environment",
++        "启动环境失败",
+         appearance.ui_font_family(),
+         appearance.monospace_font_size() + 2.,
+     )
+diff --git a/app/src/terminal/view/ambient_agent/model.rs b/app/src/terminal/view/ambient_agent/model.rs
+index 7ea3977f26..c45dba82d5 100644
+--- a/app/src/terminal/view/ambient_agent/model.rs
++++ b/app/src/terminal/view/ambient_agent/model.rs
+@@ -1318,7 +1318,7 @@ impl AmbientAgentViewModel {
+                         | AmbientAgentTaskState::Unknown => {
+                             let error = status_message
+                                 .map(|msg| msg.message)
+-                                .unwrap_or_else(|| "Cloud agent failed".to_string());
++                                .unwrap_or_else(|| "云代理失败".to_string());
+                             self.handle_spawn_error(error, ctx);
+                         }
+                     }
+diff --git a/app/src/terminal/view/ambient_agent/model_selector.rs b/app/src/terminal/view/ambient_agent/model_selector.rs
+index 5c75915f7e..53252e59ea 100644
+--- a/app/src/terminal/view/ambient_agent/model_selector.rs
++++ b/app/src/terminal/view/ambient_agent/model_selector.rs
+@@ -55,11 +55,11 @@ const SEARCH_VERTICAL_PADDING: f32 = 4.;
+ // of total breathing room above the divider line.
+ const SEARCH_FOOTER_TOP_MARGIN: f32 = 4.;
+ 
+-const SEARCH_PLACEHOLDER_TEXT: &str = "Search models";
++const SEARCH_PLACEHOLDER_TEXT: &str = "搜索模型";
+ 
+-const BUTTON_TOOLTIP: &str = "Choose agent model";
++const BUTTON_TOOLTIP: &str = "选择代理模型";
+ 
+-const NO_RESULTS_LABEL: &str = "No results";
++const NO_RESULTS_LABEL: &str = "无结果";
+ 
+ #[derive(Clone, Debug, PartialEq, Eq)]
+ pub enum ModelSelectorAction {
+@@ -398,7 +398,7 @@ impl ModelSelector {
+                                 .map(|info| info.display_name.clone())
+                         })
+                 })
+-                .unwrap_or_else(|| "default".to_string()),
++                .unwrap_or_else(|| "默认".to_string()),
+             _ => LLMPreferences::as_ref(ctx)
+                 .get_active_base_model(ctx, Some(self.terminal_view_id))
+                 .display_name
+@@ -538,9 +538,9 @@ impl ModelSelector {
+             reasoning_level: None,
+         };
+         let mut items: Vec<MenuItem<ModelSelectorAction>> = Vec::new();
+-        if query.is_empty() || "default".contains(query) {
++        if query.is_empty() || "默认".contains(query) {
+             items.push(MenuItem::Item(
+-                MenuItemFields::new("default")
++                MenuItemFields::new("默认")
+                     .with_icon(icon)
+                     .with_icon_size_override(ITEM_ICON_SIZE)
+                     .with_font_size_override(ITEM_FONT_SIZE)
+diff --git a/app/src/terminal/view/inline_banner/agent_mode_setup.rs b/app/src/terminal/view/inline_banner/agent_mode_setup.rs
+index 20af0c3a39..161eaf591a 100644
+--- a/app/src/terminal/view/inline_banner/agent_mode_setup.rs
++++ b/app/src/terminal/view/inline_banner/agent_mode_setup.rs
+@@ -12,10 +12,10 @@ use crate::appearance::Appearance;
+ use crate::terminal::view::inline_banner::InlineBannerIcon;
+ use crate::terminal::view::{InlineBannerId, TerminalAction};
+ 
+-const SPEEDBUMP_HEADER: &str = "Optimize Warp for this codebase?";
++const SPEEDBUMP_HEADER: &str = "优化 Warp 以适配此代码库？";
+ const SPEEDBUMP_TEXT: &str = "Unlock smarter, more consistent responses by letting the Agent understand your codebase and generate rules for it. You can also do this at any point by running /init";
+ /// Text for the button that allows execution
+-const ALLOW_BUTTON_TEXT: &str = "Optimize";
++const ALLOW_BUTTON_TEXT: &str = "优化";
+ 
+ #[derive(Clone, Copy, Debug)]
+ pub enum AgentModeSetupSpeedbumpBannerAction {
+diff --git a/app/src/terminal/view/inline_banner/alias_expansion.rs b/app/src/terminal/view/inline_banner/alias_expansion.rs
+index 1293e63251..6bcd631b41 100644
+--- a/app/src/terminal/view/inline_banner/alias_expansion.rs
++++ b/app/src/terminal/view/inline_banner/alias_expansion.rs
+@@ -39,7 +39,7 @@ pub fn render_alias_expansion_banner(
+     let accent_color = appearance.theme().accent().into_solid();
+ 
+     let buttons = vec![InlineBannerTextButton {
+-        text: "Enable alias expansion".to_owned(),
++        text: "启用别名展开".to_owned(),
+         text_color: active_ui_text_color.into_solid(),
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::AliasExpansionBanner(
+@@ -88,7 +88,7 @@ pub fn render_alias_expansion_banner(
+         InlineBannerStyle::VeryLowPriority,
+         appearance,
+         InlineBannerContent {
+-            title: "Warp can auto-expand aliases.".into(),
++            title: "Warp 可以自动展开别名。".into(),
+             buttons,
+             content: Some(content),
+             close_button: Some(close_button),
+diff --git a/app/src/terminal/view/inline_banner/anonymous_user_ai_sign_up.rs b/app/src/terminal/view/inline_banner/anonymous_user_ai_sign_up.rs
+index 79bb2c1170..18e85533b0 100644
+--- a/app/src/terminal/view/inline_banner/anonymous_user_ai_sign_up.rs
++++ b/app/src/terminal/view/inline_banner/anonymous_user_ai_sign_up.rs
+@@ -15,10 +15,10 @@ use crate::terminal::view::{InlineBannerId, TerminalAction};
+ use crate::ui_components::buttons::icon_button;
+ use crate::ui_components::icons::Icon as UiIcon;
+ 
+-const TITLE: &str = "Login for AI";
++const TITLE: &str = "登录以使用 AI";
+ const CONTENT: &str =
+     "AI features are unavailable for logged-out users. Create an account to use AI.";
+-const SIGN_UP_BUTTON_TEXT: &str = "Sign Up";
++const SIGN_UP_BUTTON_TEXT: &str = "注册";
+ 
+ // Layout constants for three-column banner
+ const ICON_SIZE_OFFSET: f32 = 3.0;
+diff --git a/app/src/terminal/view/inline_banner/aws_bedrock_login.rs b/app/src/terminal/view/inline_banner/aws_bedrock_login.rs
+index c99a11e5dd..91c783ca22 100644
+--- a/app/src/terminal/view/inline_banner/aws_bedrock_login.rs
++++ b/app/src/terminal/view/inline_banner/aws_bedrock_login.rs
+@@ -30,7 +30,7 @@ pub fn render_aws_bedrock_login_banner(
+     let active_ui_text_color = appearance.theme().active_ui_text_color().into_solid();
+     let buttons = vec![
+         InlineBannerTextButton {
+-            text: "Don't show again".to_owned(),
++            text: "不再显示".to_owned(),
+             text_color: active_ui_text_color,
+             button_state: InlineBannerButtonState {
+                 on_click_event: TerminalAction::AwsBedrockLoginBanner(
+@@ -43,7 +43,7 @@ pub fn render_aws_bedrock_login_banner(
+             variant: InlineBannerTextButtonVariant::Secondary,
+         },
+         InlineBannerTextButton {
+-            text: "Log into AWS".to_owned(),
++            text: "登录 AWS".to_owned(),
+             text_color: active_ui_text_color,
+             button_state: InlineBannerButtonState {
+                 on_click_event: TerminalAction::AwsBedrockLoginBanner(
+@@ -75,7 +75,7 @@ pub fn render_aws_bedrock_login_banner(
+         InlineBannerStyle::Recommendation,
+         appearance,
+         InlineBannerContent {
+-            title: "Use AWS Bedrock?".to_string(),
++            title: "使用 AWS Bedrock？".to_string(),
+             content: Some(vec![description_text]),
+             buttons,
+             close_button: Some(close_button),
+diff --git a/app/src/terminal/view/inline_banner/aws_cli_not_installed.rs b/app/src/terminal/view/inline_banner/aws_cli_not_installed.rs
+index 074f5111c9..21d2dfe4a1 100644
+--- a/app/src/terminal/view/inline_banner/aws_cli_not_installed.rs
++++ b/app/src/terminal/view/inline_banner/aws_cli_not_installed.rs
+@@ -46,7 +46,7 @@ pub fn render_aws_cli_not_installed_banner(
+ ) -> Box<dyn Element> {
+     let active_ui_text_color = appearance.theme().active_ui_text_color().into_solid();
+     let buttons = vec![InlineBannerTextButton {
+-        text: "Learn More".to_owned(),
++        text: "了解更多".to_owned(),
+         text_color: active_ui_text_color,
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::AwsCliNotInstalledBanner(
+@@ -78,7 +78,7 @@ pub fn render_aws_cli_not_installed_banner(
+         InlineBannerStyle::Recommendation,
+         appearance,
+         InlineBannerContent {
+-            title: "AWS CLI Not Installed".to_string(),
++            title: "AWS CLI 未安装".to_string(),
+             content: Some(vec![description_text]),
+             buttons,
+             close_button: Some(close_button),
+diff --git a/app/src/terminal/view/inline_banner/notifications_discovery.rs b/app/src/terminal/view/inline_banner/notifications_discovery.rs
+index 08b90f1cb0..7bf98c4054 100644
+--- a/app/src/terminal/view/inline_banner/notifications_discovery.rs
++++ b/app/src/terminal/view/inline_banner/notifications_discovery.rs
+@@ -45,7 +45,7 @@ pub fn render_inline_notifications_discovery_banner(
+     let active_ui_text_color = appearance.theme().active_ui_text_color().into_solid();
+ 
+     let learn_more_button = InlineBannerTextButton {
+-        text: "Learn more".to_string(),
++        text: "了解更多".to_string(),
+         text_color: active_ui_text_color,
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::NotificationsDiscoveryBanner(
+@@ -58,7 +58,7 @@ pub fn render_inline_notifications_discovery_banner(
+         variant: InlineBannerTextButtonVariant::Secondary,
+     };
+     let troubleshoot_button = InlineBannerTextButton {
+-        text: "Troubleshoot".to_string(),
++        text: "排查问题".to_string(),
+         text_color: active_ui_text_color,
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::NotificationsDiscoveryBanner(
+@@ -85,7 +85,7 @@ pub fn render_inline_notifications_discovery_banner(
+             vec![
+                 learn_more_button,
+                 InlineBannerTextButton {
+-                    text: "Enable".to_string(),
++                    text: "启用".to_string(),
+                     text_color: active_ui_text_color,
+                     button_state: InlineBannerButtonState {
+                         on_click_event: TerminalAction::NotificationsDiscoveryBanner(
+@@ -128,7 +128,7 @@ pub fn render_inline_notifications_discovery_banner(
+                 vec![
+                     docs_button,
+                     InlineBannerTextButton {
+-                        text: "Configure notifications".to_string(),
++                        text: "配置通知".to_string(),
+                         text_color: active_ui_text_color,
+                         button_state: InlineBannerButtonState {
+                             on_click_event: TerminalAction::NotificationsDiscoveryBanner(
+diff --git a/app/src/terminal/view/inline_banner/notifications_error.rs b/app/src/terminal/view/inline_banner/notifications_error.rs
+index 888053984e..aad8937740 100644
+--- a/app/src/terminal/view/inline_banner/notifications_error.rs
++++ b/app/src/terminal/view/inline_banner/notifications_error.rs
+@@ -43,7 +43,7 @@ pub fn render_inline_notifications_error_banner(
+     // If permissions haven't been granted or denied, add a button to set the permissions.
+     if matches!(error, Some(NotificationSendError::PermissionsNotYetGranted)) {
+         buttons.push(InlineBannerTextButton {
+-            text: "Set permissions".to_string(),
++            text: "设置权限".to_string(),
+             text_color: active_ui_text_color,
+             button_state: InlineBannerButtonState {
+                 on_click_event: TerminalAction::NotificationsErrorBanner(
+@@ -58,7 +58,7 @@ pub fn render_inline_notifications_error_banner(
+     }
+ 
+     buttons.push(InlineBannerTextButton {
+-        text: "Troubleshoot".to_string(),
++        text: "排查问题".to_string(),
+         text_color: active_ui_text_color,
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::NotificationsErrorBanner(
+diff --git a/app/src/terminal/view/inline_banner/open_in_warp.rs b/app/src/terminal/view/inline_banner/open_in_warp.rs
+index 8688a9c8cf..7ecf0b4138 100644
+--- a/app/src/terminal/view/inline_banner/open_in_warp.rs
++++ b/app/src/terminal/view/inline_banner/open_in_warp.rs
+@@ -78,8 +78,8 @@ pub fn render_open_in_warp_banner(
+     appearance: &Appearance,
+ ) -> Box<dyn Element> {
+     let button_text = match state.target.file_type {
+-        OpenableFileType::Markdown => "View in Warp",
+-        OpenableFileType::Code | OpenableFileType::Text => "Edit in Warp",
++        OpenableFileType::Markdown => "在 Warp 中查看",
++        OpenableFileType::Code | OpenableFileType::Text => "在 Warp 中编辑",
+     };
+ 
+     let open_button = InlineBannerTextButton {
+@@ -98,7 +98,7 @@ pub fn render_open_in_warp_banner(
+     };
+ 
+     let learn_more_button = InlineBannerTextButton {
+-        text: "Learn more".to_string(),
++        text: "了解更多".to_string(),
+         text_color: appearance.theme().active_ui_text_color().into_solid(),
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::OpenInWarpBanner(OpenInWarpBannerAction::LearnMore),
+diff --git a/app/src/terminal/view/inline_banner/shared_sessions.rs b/app/src/terminal/view/inline_banner/shared_sessions.rs
+index 96694dacb3..b2827b3032 100644
+--- a/app/src/terminal/view/inline_banner/shared_sessions.rs
++++ b/app/src/terminal/view/inline_banner/shared_sessions.rs
+@@ -32,7 +32,7 @@ fn render_inline_shared_session_banner(
+     let today = Local::now();
+     let is_today = datetime.year() == today.year() && datetime.ordinal() == today.ordinal();
+     let day_str = if is_today {
+-        String::from("Today")
++        String::from("今天")
+     } else {
+         // Formatted as "Month Day", e.g. "October 10".
+         datetime.format("%B %e").to_string()
+diff --git a/app/src/terminal/view/inline_banner/ssh.rs b/app/src/terminal/view/inline_banner/ssh.rs
+index e93af8a068..bada58eee6 100644
+--- a/app/src/terminal/view/inline_banner/ssh.rs
++++ b/app/src/terminal/view/inline_banner/ssh.rs
+@@ -16,9 +16,9 @@ pub enum SSHBannerAction {
+ 
+ #[derive(Default)]
+ pub struct SSHBannerMouseStates {
+-    /// Hover state for the "Learn more" button in the SSH wrapper banner.
++    /// Hover state for the "了解更多" button in the SSH wrapper banner.
+     pub learn_more: MouseStateHandle,
+-    /// Hover state for the "Settings" button in the SSH wrapper banner.
++    /// Hover state for the "设置" button in the SSH wrapper banner.
+     pub settings: MouseStateHandle,
+ }
+ 
+@@ -49,7 +49,7 @@ pub fn render_inline_ssh_wrapper_banner(
+     };
+     let buttons = vec![
+         InlineBannerTextButton {
+-            text: "Learn more".to_string(),
++            text: "了解更多".to_string(),
+             text_color: label_text_color,
+             button_state: InlineBannerButtonState {
+                 on_click_event: TerminalAction::LegacySSHBanner(SSHBannerAction::LearnMore),
+@@ -60,7 +60,7 @@ pub fn render_inline_ssh_wrapper_banner(
+             variant: InlineBannerTextButtonVariant::Secondary,
+         },
+         InlineBannerTextButton {
+-            text: "Settings".to_string(),
++            text: "设置".to_string(),
+             text_color: label_text_color,
+             button_state: InlineBannerButtonState {
+                 on_click_event: TerminalAction::LegacySSHBanner(SSHBannerAction::Settings),
+diff --git a/app/src/terminal/view/inline_banner/vim_mode.rs b/app/src/terminal/view/inline_banner/vim_mode.rs
+index 172574dc08..b32d3791de 100644
+--- a/app/src/terminal/view/inline_banner/vim_mode.rs
++++ b/app/src/terminal/view/inline_banner/vim_mode.rs
+@@ -27,7 +27,7 @@ pub fn render_vim_mode_banner(
+     let active_ui_text_color = appearance.theme().active_ui_text_color();
+ 
+     let buttons = vec![InlineBannerTextButton {
+-        text: "Enable".to_owned(),
++        text: "启用".to_owned(),
+         text_color: active_ui_text_color.into_solid(),
+         button_state: InlineBannerButtonState {
+             on_click_event: TerminalAction::VimModeBanner(VimModeBannerAction::Enable),
+@@ -47,7 +47,7 @@ pub fn render_vim_mode_banner(
+         InlineBannerStyle::LowPriority,
+         appearance,
+         InlineBannerContent {
+-            title: "Enable Warp's Vim keybindings?".to_string(),
++            title: "启用 Warp 的 Vim 键绑定？".to_string(),
+             buttons,
+             close_button: Some(close_button),
+             ..Default::default()
+diff --git a/app/src/tips/tip_view.rs b/app/src/tips/tip_view.rs
+index bcee5302ff..ed2c97e969 100644
+--- a/app/src/tips/tip_view.rs
++++ b/app/src/tips/tip_view.rs
+@@ -125,33 +125,33 @@ impl TipsView {
+ 
+         let tip_items = vec![
+             TipItem::new(
+-                "Command Palette".to_string(),
+-                "Easily discover everything you can do in Warp without your hands leaving the keyboard.".to_string(),
++                "命令面板".to_string(),
++                "无需离开键盘即可轻松发现 Warp 中所有功能。".to_string(),
+                 TipAction::CommandPalette,
+                 ctx,
+             ),
+             TipItem::new(
+-                "Split Pane".to_string(),
+-                "Split tabs into multiple panes to make your ideal layout."
++                "拆分窗格".to_string(),
++                "将标签页拆分为多个窗格，打造理想布局。"
+                     .to_string(),
+                 TipAction::SplitPane,
+                 ctx,
+             ),
+             TipItem::new(
+-                "History Search".to_string(),
+-                "Find, edit and re-run previously executed commands.".to_string(),
++                "历史搜索".to_string(),
++                "查找、编辑并重新运行之前执行过的命令。".to_string(),
+                 TipAction::HistorySearch,
+                 ctx,
+             ),
+             TipItem::new(
+-                "AI Command Search".to_string(),
+-                "Generate shell commands with natural language.".to_string(),
++                "AI 命令搜索".to_string(),
++                "使用自然语言生成 shell 命令。".to_string(),
+                 TipAction::AiCommandSearch,
+                 ctx,
+             ),
+             TipItem::new(
+-                "Theme Picker".to_string(),
+-                "Make Warp your own by choosing a built-in theme. Or create your own.".to_string(),
++                "主题选择器".to_string(),
++                "选择内置主题来个性化 Warp，或创建自己的主题。".to_string(),
+                 TipAction::ThemePicker,
+                 ctx,
+             ),
+@@ -260,7 +260,7 @@ impl TipsView {
+                 .with_child(
+                     Container::new(
+                         ui_builder
+-                            .wrappable_text("Shortcut".to_string(), false)
++                            .wrappable_text("快捷键".to_string(), false)
+                             .with_style(UiComponentStyles {
+                                 font_family_id: Some(appearance.ui_font_family()),
+                                 font_size: Some(appearance.monospace_font_size() * 0.8),
+@@ -395,7 +395,7 @@ impl TipsView {
+                         Align::new(
+                             appearance
+                                 .ui_builder()
+-                                .paragraph("Skip Welcome Tips".to_string())
++                                .paragraph("跳过新手引导".to_string())
+                                 .build()
+                                 .finish(),
+                         )
+@@ -448,7 +448,7 @@ impl TipsView {
+             .finish();
+ 
+         let title = ui_builder
+-            .span("Complete!")
++            .span("完成！")
+             .with_style(UiComponentStyles {
+                 font_weight: Some(Weight::Bold),
+                 // Set to white here as the background has 85% black overlay.
+@@ -460,7 +460,7 @@ impl TipsView {
+             .finish();
+ 
+         let sub_text = ui_builder
+-            .paragraph("Nice work on finishing the welcome tips!")
++            .paragraph("恭喜你完成了新手引导！")
+             .with_style(UiComponentStyles {
+                 font_size: Some(12.),
+                 font_color: Some(Fill::white().into()),
+@@ -480,7 +480,7 @@ impl TipsView {
+                     .set_width(152.)
+                     .set_height(34.),
+             )
+-            .with_centered_text_label("Close Welcome Tips".to_string())
++            .with_centered_text_label("关闭新手引导".to_string())
+             .build()
+             .on_click(|ctx, _, _| ctx.dispatch_typed_action(TipsAction::DismissTips))
+             .finish();
+diff --git a/chinese_localize.sh b/chinese_localize.sh
+new file mode 100644
+index 0000000000..6d1d2697e0
+--- /dev/null
++++ b/chinese_localize.sh
+@@ -0,0 +1,157 @@
++#!/bin/bash
++# Batch Chinese localization script for Warp terminal
++# Apply all translations from the 6 parallel agents
++
++cd "$(dirname "$0")"
++
++replace() {
++    local file="$1"
++    local old="$2"
++    local new="$3"
++    if grep -qF "$old" "$file" 2>/dev/null; then
++        sed -i "s/$old/$new/g" "$file"
++        echo "OK: $old"
++    else
++        echo "SKIP: $old"
++    fi
++}
++
++echo "=== Agent-6: Code Editor & File Tree ==="
++replace "app/src/code/editor/comment_editor.rs" '"Comment"' '"评论"'
++replace "app/src/code/editor/comment_editor.rs" '"Cancel"' '"取消"'
++replace "app/src/code/editor/comment_editor.rs" '"Remove"' '"删除"'
++replace "app/src/code/editor/comment_editor.rs" '"Update"' '"更新"'
++replace "app/src/code/editor/view/actions.rs" '"Delete"' '"删除"'
++replace "app/src/code/file_tree/view.rs" '"Open in new pane"' '"在新窗格中打开"'
++replace "app/src/code/file_tree/view.rs" '"Open in new tab"' '"在新标签页中打开"'
++replace "app/src/code/file_tree/view.rs" '"Open file"' '"打开文件"'
++replace "app/src/code/file_tree/view.rs" '"cd to directory"' '"切换到目录"'
++replace "app/src/code/file_tree/view.rs" '"Reveal in Finder"' '"在访达中显示"'
++replace "app/src/code/file_tree/view.rs" '"Reveal in Explorer"' '"在资源管理器中显示"'
++replace "app/src/code/file_tree/view.rs" '"Reveal in file manager"' '"在文件管理器中显示"'
++replace "app/src/code/file_tree/view.rs" '"Rename"' '"重命名"'
++replace "app/src/code/file_tree/view.rs" '"Attach as context"' '"附加为上下文"'
++replace "app/src/code/file_tree/view.rs" '"Copy path"' '"复制路径"'
++replace "app/src/code/file_tree/view.rs" '"Copy relative path"' '"复制相对路径"'
++
++# code review
++replace "app/src/code_review/code_review_view.rs" '"Hide file navigation"' '"隐藏文件导航"'
++replace "app/src/code_review/code_review_view.rs" '"Show file navigation"' '"显示文件导航"'
++replace "app/src/code_review/code_review_view.rs" '"Maximize"' '"最大化"'
++replace "app/src/code_review/code_review_view.rs" '"Restore"' '"还原"'
++replace "app/src/code_review/code_review_view.rs" '"Commit"' '"提交"'
++replace "app/src/code_review/code_review_view.rs" '"Undo"' '"撤销"'
++replace "app/src/code_review/code_review_view.rs" '"Discard changes"' '"丢弃更改"'
++replace "app/src/code_review/code_review_view.rs" '"Initialize codebase"' '"初始化代码库"'
++replace "app/src/code_review/code_review_view.rs" '"Open repository"' '"打开仓库"'
++replace "app/src/code_review/code_review_view.rs" '"No changes to commit"' '"没有更改可提交"'
++replace "app/src/code_review/code_review_view.rs" '"No git actions available"' '"没有可用的 Git 操作"'
++replace "app/src/code_review/code_review_view.rs" '"Push"' '"推送"'
++replace "app/src/code_review/code_review_view.rs" '"Create PR"' '"创建 PR"'
++replace "app/src/code_review/code_review_view.rs" '"Publish"' '"发布"'
++replace "app/src/code_review/code_review_view.rs" '"Add file diff as context"' '"添加文件差异作为上下文"'
++replace "app/src/code_review/code_review_view.rs" '"Copy file path"' '"复制文件路径"'
++replace "app/src/code_review/code_review_view.rs" '"Add diff set as context"' '"添加差异集作为上下文"'
++replace "app/src/code_review/code_review_view.rs" '"Show saved comment"' '"显示已保存的评论"'
++replace "app/src/code_review/code_review_view.rs" '"Add comment"' '"添加评论"'
++replace "app/src/code_review/code_review_view.rs" '"Discard all"' '"丢弃全部"'
++
++echo ""
++echo "=== Agent-5: Tab & Settings ==="
++replace "app/src/tab.rs" '"Stop sharing"' '"停止共享"'
++replace "app/src/tab.rs" '"Share session"' '"共享会话"'
++replace "app/src/tab.rs" '"Stop sharing all"' '"停止全部共享"'
++replace "app/src/tab.rs" '"Copy link"' '"复制链接"'
++replace "app/src/tab.rs" '"Copy tab title"' '"复制标签标题"'
++replace "app/src/tab.rs" '"Copy pane title"' '"复制窗格标题"'
++replace "app/src/tab.rs" '"Copy branch"' '"复制分支"'
++replace "app/src/tab.rs" '"Copy working directory"' '"复制工作目录"'
++replace "app/src/tab.rs" '"Copy pull request link"' '"复制 Pull Request 链接"'
++replace "app/src/tab.rs" '"Rename tab"' '"重命名标签"'
++replace "app/src/tab.rs" '"Reset tab name"' '"重置标签名"'
++replace "app/src/tab.rs" '"Close tab"' '"关闭标签"'
++replace "app/src/tab.rs" '"Close other tabs"' '"关闭其他标签"'
++replace "app/src/tab.rs" '"Save as new config"' '"另存为新配置"'
++replace "app/src/tab.rs" '"New group with tab"' '"新建标签组"'
++replace "app/src/tab.rs" '"Move to group"' '"移动到组"'
++replace "app/src/tab.rs" '"Default (no color)"' '"默认（无颜色）"'
++replace "app/src/tab.rs" '"Cloud agent run"' '"云端代理运行"'
++replace "app/src/tab.rs" '"Move Tab Down"' '"向下移动标签"'
++replace "app/src/tab.rs" '"Move Tab Right"' '"向右移动标签"'
++replace "app/src/tab.rs" '"Move Tab Up"' '"向上移动标签"'
++replace "app/src/tab.rs" '"Move Tab Left"' '"向左移动标签"'
++replace "app/src/tab.rs" '"Close Tabs Below"' '"关闭下方标签"'
++replace "app/src/tab.rs" '"Close Tabs Right"' '"关闭右侧标签"'
++
++# banner
++replace "app/src/banner/view.rs" '"Don'\''t show me again"' '"不再显示"'
++
++# settings main page
++replace "app/src/settings_view/main_page.rs" '"Sign up"' '"注册"'
++replace "app/src/settings_view/main_page.rs" '"Free"' '"免费"'
++replace "app/src/settings_view/main_page.rs" '"Compare plans"' '"比较套餐"'
++replace "app/src/settings_view/main_page.rs" '"Contact support"' '"联系支持"'
++replace "app/src/settings_view/main_page.rs" '"Manage billing"' '"管理账单"'
++replace "app/src/settings_view/main_page.rs" '"Settings sync"' '"设置同步"'
++replace "app/src/settings_view/main_page.rs" '"Refer a friend"' '"推荐好友"'
++replace "app/src/settings_view/main_page.rs" '"Log out"' '"退出登录"'
++
++# settings common
++replace "app/src/settings_view/settings_page.rs" '"Reset to default"' '"重置为默认值"'
++
++# features page
++replace "app/src/settings_view/features_page.rs" '"Configure Global Hotkey"' '"配置全局热键"'
++replace "app/src/settings_view/features_page.rs" '"Cancel"' '"取消"'
++replace "app/src/settings_view/features_page.rs" '"Save"' '"保存"'
++
++echo ""
++echo "=== Agent-1: Additional app_menus changes ==="
++replace "app/src/app_menus.rs" '"另存为新配置..."' '"另存为新配置..."'  # already applied
++
++echo ""
++echo "=== Settings View remaining files ==="
++replace "app/src/settings_view/mod.rs" '"Billing and usage"' '"计费与用量"'
++replace "app/src/settings_view/mod.rs" '"Keyboard shortcuts"' '"快捷键"'
++replace "app/src/settings_view/mod.rs" '"Shared blocks"' '"共享块"'
++replace "app/src/settings_view/mod.rs" '"MCP Servers"' '"MCP 服务器"'
++replace "app/src/settings_view/mod.rs" '"Profiles"' '"配置文件"'
++replace "app/src/settings_view/mod.rs" '"Knowledge"' '"知识库"'
++replace "app/src/settings_view/mod.rs" '"Third party CLI agents"' '"第三方 CLI 代理"'
++replace "app/src/settings_view/mod.rs" '"Indexing and projects"' '"索引与项目"'
++replace "app/src/settings_view/mod.rs" '"Editor and Code Review"' '"编辑器与代码审查"'
++replace "app/src/settings_view/mod.rs" '"Environments"' '"环境"'
++replace "app/src/settings_view/mod.rs" '"Oz Cloud API Keys"' '"Oz Cloud API 密钥"'
++replace "app/src/settings_view/mod.rs" '"BETA"' '"测试版"'
++
++# about_page
++replace "app/src/settings_view/about_page.rs" '"Copyright 2026 Warp"' '"版权所有 2026 Warp"'
++
++# privacy_page
++replace "app/src/settings_view/privacy_page.rs" '"Secret redaction"' '"机密信息脱敏"'
++replace "app/src/settings_view/privacy_page.rs" '"Custom secret redaction"' '"自定义机密信息脱敏"'
++replace "app/src/settings_view/privacy_page.rs" '"Add regex pattern"' '"添加正则表达式"'
++replace "app/src/settings_view/privacy_page.rs" '"Personal"' '"个人"'
++replace "app/src/settings_view/privacy_page.rs" '"Enterprise"' '"企业"'
++replace "app/src/settings_view/privacy_page.rs" '"Recommended"' '"推荐"'
++replace "app/src/settings_view/privacy_page.rs" '"Add all"' '"全部添加"'
++replace "app/src/settings_view/privacy_page.rs" '"Add regex"' '"添加正则"'
++replace "app/src/settings_view/privacy_page.rs" '"Send crash reports"' '"发送崩溃报告"'
++replace "app/src/settings_view/privacy_page.rs" '"Manage your data"' '"管理你的数据"'
++replace "app/src/settings_view/privacy_page.rs" '"Privacy policy"' '"隐私政策"'
++
++# appearance_page
++replace "app/src/settings_view/appearance_page.rs" '"Themes"' '"主题"'
++replace "app/src/settings_view/appearance_page.rs" '"Window"' '"窗口"'
++replace "app/src/settings_view/appearance_page.rs" '"Blocks"' '"区块"'
++replace "app/src/settings_view/appearance_page.rs" '"Text"' '"文本"'
++replace "app/src/settings_view/appearance_page.rs" '"Tabs"' '"标签页"'
++replace "app/src/settings_view/appearance_page.rs" '"Cursor"' '"光标"'
++replace "app/src/settings_view/appearance_page.rs" '"Icon"' '"图标"'
++replace "app/src/settings_view/appearance_page.rs" '"Input"' '"输入"'
++replace "app/src/settings_view/appearance_page.rs" '"Panes"' '"窗格"'
++
++# terminal/shared_sessions.rs
++replace "app/src/terminal/view/inline_banner/shared_sessions.rs" '"Today"' '"今天"'
++
++echo ""
++echo "=== Verify remaining unapplied changes ==="
+diff --git a/crates/warp_search_core/src/data_source.rs b/crates/warp_search_core/src/data_source.rs
+index 7d998b37df..3254083c3f 100644
+--- a/crates/warp_search_core/src/data_source.rs
++++ b/crates/warp_search_core/src/data_source.rs
+@@ -300,32 +300,32 @@ impl QueryFilter {
+     /// Returns the display name (e.g. the string to be used in UI) representing the filter.
+     pub fn display_name(&self) -> &'static str {
+         match self {
+-            QueryFilter::History => "history",
+-            QueryFilter::Workflows => "workflows",
+-            QueryFilter::AgentModeWorkflows => "prompts",
+-            QueryFilter::Notebooks => "notebooks",
+-            QueryFilter::Plans => "plans",
+-            QueryFilter::NaturalLanguage => "AI command suggestions",
+-            QueryFilter::Actions => "actions",
+-            QueryFilter::Sessions => "sessions",
+-            QueryFilter::Tabs => "tabs",
+-            QueryFilter::Conversations => "conversations",
+-            QueryFilter::LaunchConfigurations => "launch configurations",
++            QueryFilter::History => "历史记录",
++            QueryFilter::Workflows => "工作流",
++            QueryFilter::AgentModeWorkflows => "提示",
++            QueryFilter::Notebooks => "笔记本",
++            QueryFilter::Plans => "计划",
++            QueryFilter::NaturalLanguage => "AI 命令建议",
++            QueryFilter::Actions => "操作",
++            QueryFilter::Sessions => "会话",
++            QueryFilter::Tabs => "标签页",
++            QueryFilter::Conversations => "对话",
++            QueryFilter::LaunchConfigurations => "启动配置",
+             QueryFilter::Drive => "Warp Drive",
+-            QueryFilter::EnvironmentVariables => "environment variables",
+-            QueryFilter::PromptHistory => "prompt history",
+-            QueryFilter::Files => "files",
+-            QueryFilter::Commands => "commands",
+-            QueryFilter::Blocks => "blocks",
+-            QueryFilter::Code => "code",
+-            QueryFilter::Rules => "rules",
+-            QueryFilter::Repos => "repos",
+-            QueryFilter::DiffSets => "diff sets",
+-            QueryFilter::StaticSlashCommands => "slash commands",
+-            QueryFilter::Skills => "skills",
+-            QueryFilter::BaseModels => "base models",
+-            QueryFilter::FullTerminalUseModels => "full terminal use models",
+-            QueryFilter::CurrentDirectoryConversations => "current directory conversations",
++            QueryFilter::EnvironmentVariables => "环境变量",
++            QueryFilter::PromptHistory => "提示历史",
++            QueryFilter::Files => "文件",
++            QueryFilter::Commands => "命令",
++            QueryFilter::Blocks => "区块",
++            QueryFilter::Code => "代码",
++            QueryFilter::Rules => "规则",
++            QueryFilter::Repos => "仓库",
++            QueryFilter::DiffSets => "差异集",
++            QueryFilter::StaticSlashCommands => "斜杠命令",
++            QueryFilter::Skills => "技能",
++            QueryFilter::BaseModels => "基础模型",
++            QueryFilter::FullTerminalUseModels => "完整终端使用模型",
++            QueryFilter::CurrentDirectoryConversations => "当前目录对话",
+         }
+     }
+ 
