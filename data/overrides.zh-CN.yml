@@ -1,0 +1,13 @@
+# warp-zh 人工审校覆盖层
+# 此文件中的条目会覆盖 data/glossary.zh-CN.yml 中的同名条目
+# 保留部分英文技术术语不翻译
+
+# Shell 是通用技术术语，保留英文
+Shell: Shell
+
+# Warp AI 是品牌名称，保留
+Warp AI: Warp AI
+
+# 在此添加你的自定义覆盖译文
+# 示例：
+# "Agent": "智能体"  # 如果偏好"智能体"而非"AI 助手"
