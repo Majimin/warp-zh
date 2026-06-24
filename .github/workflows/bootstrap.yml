@@ -1,0 +1,478 @@
+name: Bootstrap warp-zh
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/bootstrap.yml']
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download PR patch
+        run: |
+          mkdir -p patches
+          curl -fsSL https://github.com/warpdotdev/warp/pull/11960.patch \
+            -o patches/0001-zh-CN-core-ui.patch || \
+          echo "# patch unavailable, run: warp-zh apply <warp-dir>" \
+            > patches/0001-zh-CN-core-ui.patch
+          echo "1 patch" > patches/series
+
+      - name: Generate project files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const mk = (p) => fs.mkdirSync(path.dirname(p), {recursive:true});
+
+            const files = {
+              'pyproject.toml': `[project]
+name = "warp-zh"
+version = "0.1.0"
+description = "Warp 终端简体中文汉化工具链"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["warp", "terminal", "i18n", "localization", "chinese"]
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.7",
+    "ruamel.yaml>=0.18",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.5", "mypy>=1.10"]
+
+[project.scripts]
+warp-zh = "warp_zh.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short -q"
+`,
+              '.gitignore': `__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+*.orig
+*.rej
+/warp_src/
+`,
+              'LICENSE': `MIT License
+
+Copyright (c) 2026 Majimin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+`,
+              'install.sh': `#!/usr/bin/env bash
+set -euo pipefail
+echo "warp-zh 汉化补丁安装程序"
+echo "==============================="
+if ! command -v python3 &>/dev/null; then
+    echo "错误：需要 Python 3.11+"; exit 1
+fi
+echo "正在安装 warp-zh..."
+pip install --quiet "git+https://github.com/Majimin/warp-zh.git"
+echo ""
+echo "✓ 安装完成！"
+echo ""
+echo "使用方法："
+echo "  warp-zh apply /path/to/warp-source"
+echo "  warp-zh apply /path/to/warp-source --dry-run"
+echo "  warp-zh status /path/to/warp-source"
+echo "  warp-zh revert /path/to/warp-source"
+`,
+              'Makefile': `.PHONY: install test lint fmt check clean build
+
+install:
+\tpip install -e ".[dev]"
+
+test:
+\tpytest tests/ -v --cov=warp_zh --cov-report=term-missing
+
+lint:
+\truff check warp_zh/ tests/
+\tmypy warp_zh/ --ignore-missing-imports
+
+fmt:
+\truff format warp_zh/ tests/
+
+check: lint test
+
+clean:
+\trm -rf dist/ build/ *.egg-info .pytest_cache htmlcov .coverage
+
+build:
+\tpip install build && python -m build
+`,
+              'warp_zh/__init__.py': `"""warp-zh: Warp 终端简体中文汉化工具链."""
+__version__ = "0.1.0"
+__author__ = "Majimin"
+__license__ = "MIT"
+`,
+              'warp_zh/models.py': `"""核心数据模型：贯穿提取→翻译→改写→打补丁全流程。"""
+from __future__ import annotations
+import hashlib
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Optional
+
+
+class TranslationStatus(str, Enum):
+    UNTRANSLATED = "untranslated"
+    MACHINE      = "machine"
+    REVIEWED     = "reviewed"
+    STALE        = "stale"
+
+
+@dataclass(frozen=True, slots=True)
+class StringId:
+    value: str
+
+    @classmethod
+    def derive(cls, source_text: str, context: str) -> "StringId":
+        digest = hashlib.sha1(
+            f"{context}\\x00{source_text}".encode()
+        ).hexdigest()
+        return cls(value=digest[:12])
+
+    def __str__(self) -> str:
+        return self.value
+
+
+@dataclass(frozen=True, slots=True)
+class SourceLocation:
+    file: Path
+    line: int
+    column: int
+    byte_start: int
+    byte_end: int
+
+    def __post_init__(self) -> None:
+        if self.byte_end < self.byte_start:
+            raise ValueError(
+                f"非法字节区间 [{self.byte_start},{self.byte_end}) "
+                f"@ {self.file}:{self.line}"
+            )
+
+
+@dataclass(frozen=True, slots=True)
+class StringEntry:
+    source_text: str
+    context: str
+    location: SourceLocation
+    call_site: str
+    is_format: bool = False
+
+    @property
+    def key(self) -> StringId:
+        return StringId.derive(self.source_text, self.context)
+
+
+@dataclass(slots=True)
+class TranslationUnit:
+    entry: StringEntry
+    target_text: Optional[str] = None
+    status: TranslationStatus = TranslationStatus.UNTRANSLATED
+    note: str = ""
+
+    def mark_machine(self, text: str) -> None:
+        self.target_text = text
+        self.status = TranslationStatus.MACHINE
+
+    def mark_reviewed(self, text: str) -> None:
+        self.target_text = text
+        self.status = TranslationStatus.REVIEWED
+
+    def mark_stale(self) -> None:
+        self.status = TranslationStatus.STALE
+
+
+@dataclass
+class TranslationMemory:
+    units: list[TranslationUnit] = field(default_factory=list)
+
+    def add(self, unit: TranslationUnit) -> None:
+        self.units.append(unit)
+
+    def find_by_source(self, text: str) -> Optional[TranslationUnit]:
+        for u in self.units:
+            if u.entry.source_text == text:
+                return u
+        return None
+
+    @property
+    def coverage(self) -> float:
+        if not self.units:
+            return 0.0
+        done = sum(
+            1 for u in self.units
+            if u.status in (TranslationStatus.MACHINE, TranslationStatus.REVIEWED)
+            and u.target_text
+        )
+        return done / len(self.units)
+`,
+              'warp_zh/config.py': `"""配置加载与默认值。"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Optional
+
+
+@dataclass
+class WarpZhConfig:
+    locale: str = "zh-CN"
+    warp_upstream_sha: str = "f7e1d9da06230a32ae650e6d8aa805424252e2a4"
+    glossary_path: Path = Path("data/glossary.zh-CN.yml")
+    overrides_path: Path = Path("data/overrides.zh-CN.yml")
+    patches_dir: Path = Path("patches")
+    call_site_patterns: list[str] = field(default_factory=lambda: [
+        "ActionButton::new",
+        "CompactibleActionButton::new",
+        ".with_tooltip(",
+        ".with_title(",
+        ".with_label(",
+        ".with_placeholder(",
+        ".with_header(",
+        ".with_description(",
+        "tooltip!(",
+        "label!(",
+        "title!(",
+        "menu_item!(",
+        "button!(",
+    ])
+    skip_patterns: list[str] = field(default_factory=lambda: [
+        "://",
+        "{:?}",
+        "RUST_LOG",
+        "warp-",
+        ".rs",
+        "\\\\n",
+    ])
+
+
+def load_config(path: Optional[Path] = None) -> WarpZhConfig:
+    cfg = WarpZhConfig()
+    if path and path.exists():
+        try:
+            from ruamel.yaml import YAML
+            yaml = YAML()
+            data = yaml.load(path)
+            if data:
+                for k, v in data.items():
+                    if hasattr(cfg, k):
+                        setattr(cfg, k, v)
+        except ImportError:
+            pass
+    return cfg
+`,
+              'warp_zh/glossary.py': `"""术语表管理：内置 100+ 条核心术语（基于 PR #11960）。"""
+from __future__ import annotations
+from pathlib import Path
+from typing import Optional
+
+BUILTIN_GLOSSARY: dict[str, str] = {
+    # 通用动作
+    "All": "全部", "Personal": "个人", "Get started": "开始使用",
+    "View Agents": "查看 AI 助手", "Settings": "设置",
+    "Preferences": "偏好设置", "Close": "关闭", "Open": "打开",
+    "Save": "保存", "Cancel": "取消", "Confirm": "确认",
+    "Delete": "删除", "Edit": "编辑", "Copy": "复制",
+    "Paste": "粘贴", "Cut": "剪切", "Undo": "撤销",
+    "Redo": "重做", "Search": "搜索", "Filter": "筛选",
+    "Sort": "排序", "Refresh": "刷新", "Reload": "重新加载",
+    "Download": "下载", "Upload": "上传", "Share": "分享",
+    "Export": "导出", "Import": "导入", "Submit": "提交",
+    "Apply": "应用", "Reset": "重置", "Clear": "清除",
+    "Select": "选择", "Enable": "启用", "Disable": "禁用",
+    "Show": "显示", "Hide": "隐藏", "Expand": "展开",
+    "Collapse": "收起", "Move": "移动", "Rename": "重命名",
+    "Duplicate": "复制", "Create": "新建", "Add": "添加",
+    "Remove": "删除", "Update": "更新", "Connect": "连接",
+    "Disconnect": "断开", "Install": "安装", "Uninstall": "卸载",
+    "Run": "运行", "Stop": "停止", "Pause": "暂停",
+    "Resume": "继续", "Restart": "重启",
+    # 终端概念
+    "Terminal": "终端", "Shell": "Shell", "Session": "会话",
+    "Tab": "标签页", "Pane": "窗格", "Block": "块",
+    "Command": "命令", "Output": "输出", "Input": "输入",
+    "History": "历史记录", "Prompt": "提示符",
+    "Working directory": "工作目录", "Environment": "环境",
+    "Variable": "变量", "Alias": "别名", "Script": "脚本",
+    # AI/Agent
+    "Agent": "AI 助手", "Task": "任务", "Workflow": "工作流",
+    "Model": "模型", "Chat": "对话", "Suggestion": "建议",
+    "Generate": "生成", "Explain": "解释",
+    # 文件操作
+    "File": "文件", "Folder": "文件夹", "Directory": "目录",
+    "New file": "新建文件", "New folder": "新建文件夹",
+    # 代码审查
+    "Commit": "提交", "Push": "推送", "Pull": "拉取",
+    "Branch": "分支", "Merge": "合并", "Diff": "差异",
+    "Review": "审查", "Comment": "评论", "Approve": "批准",
+    # 设置
+    "Appearance": "外观", "Theme": "主题", "Font": "字体",
+    "Privacy": "隐私", "Security": "安全", "Account": "账号",
+    "Notification": "通知", "Keyboard": "键盘", "Shortcut": "快捷键",
+    # 状态
+    "Loading": "加载中", "Saving": "保存中", "Error": "错误",
+    "Warning": "警告", "Success": "成功", "Failed": "失败",
+    "Connected": "已连接", "Disconnected": "已断开",
+    # 导航
+    "Back": "返回", "Forward": "前进", "Home": "主页",
+    "Next": "下一步", "Previous": "上一步", "Done": "完成",
+    "Finish": "完成", "Skip": "跳过", "Continue": "继续",
+    # 菜单
+    "View": "视图", "Window": "窗口", "Help": "帮助",
+    "About": "关于", "Quit": "退出", "Minimize": "最小化",
+    "Maximize": "最大化", "Fullscreen": "全屏",
+}
+
+
+class Glossary:
+    def __init__(self, extra: Optional[dict[str, str]] = None):
+        self._terms: dict[str, str] = {**BUILTIN_GLOSSARY}
+        if extra:
+            self._terms.update(extra)
+
+    @classmethod
+    def load(cls, path: Path, overrides_path: Optional[Path] = None) -> "Glossary":
+        extra: dict[str, str] = {}
+        for p in [path, overrides_path]:
+            if p and p.exists():
+                try:
+                    from ruamel.yaml import YAML
+                    yaml = YAML()
+                    data = yaml.load(p)
+                    if isinstance(data, dict):
+                        extra.update(data)
+                except Exception:
+                    pass
+        return cls(extra)
+
+    def lookup(self, text: str) -> Optional[str]:
+        if text in self._terms:
+            return self._terms[text]
+        lower = text.lower()
+        for k, v in self._terms.items():
+            if k.lower() == lower:
+                return v
+        return None
+
+    @property
+    def terms(self) -> dict[str, str]:
+        return dict(self._terms)
+`,
+              'warp_zh/extractor.py': `"""Rust 源码字符串提取器（基于正则 AST 近似）。"""
+from __future__ import annotations
+import re
+from pathlib import Path
+from typing import Iterator
+from .models import StringEntry, SourceLocation
+from .config import WarpZhConfig
+
+# 匹配常见调用点的字符串参数
+_CALL_PATTERNS = [
+    (r'ActionButton::new\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', "ActionButton::new"),
+    (r'CompactibleActionButton::new\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', "CompactibleActionButton::new"),
+    (r'\\.with_tooltip\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".with_tooltip"),
+    (r'\\.with_title\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".with_title"),
+    (r'\\.with_label\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".with_label"),
+    (r'\\.with_placeholder\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".with_placeholder"),
+    (r'\\.with_header\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".with_header"),
+    (r'\\.with_description\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".with_description"),
+    (r'\\.text\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', ".text"),
+    (r'tooltip!\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', "tooltip!"),
+    (r'label!\\s*\\(\\s*"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', "label!"),
+    (r'\\.to_string\\(\\)', None),  # 后缀标记 — 不单独提取
+]
+
+_EXTRACT_RE = re.compile(
+    r'(?:'
+    r'ActionButton::new|CompactibleActionButton::new'
+    r'|\\.with_(?:tooltip|title|label|placeholder|header|description)'
+    r'|\\.text'
+    r'|tooltip!|label!'
+    r')\\s*\\(\\s*"([^"\\\\\\n]*(?:\\\\.[^"\\\\\\n]*)*)"',
+    re.MULTILINE,
+)
+
+
+def _derive_context(file: Path, warp_root: Path) -> str:
+    rel = file.relative_to(warp_root)
+    parts = rel.with_suffix("").parts
+    return ".".join(parts).replace("/", ".")
+
+
+def extract_from_file(
+    file: Path,
+    warp_root: Path,
+    cfg: WarpZhConfig,
+) -> Iterator[StringEntry]:
+    try:
+        raw = file.read_bytes()
+        text = raw.decode("utf-8", errors="replace")
+    except OSError:
+        return
+
+    context = _derive_context(file, warp_root)
+    lines = text.splitlines(keepends=True)
+    # 构建行→字节偏移映射
+    offsets: list[int] = []
+    pos = 0
+    for line in lines:
+        offsets.append(pos)
+        pos += len(line.encode("utf-8"))
+
+    for m in _EXTRACT_RE.finditer(text):
+        source = m.group(1)
+        if not source or len(source) < 2:
+            continue
+        # 跳过无需翻译的字符串
+        skip = False
+        for pat in cfg.skip_patterns:
+            if pat in source:
+                skip = True
+                break
+        if skip:
+            continue
+        # 非 ASCII 字符说明已翻译
+        if not source.isascii():
+            continue
+
+        # 计算行列
+        start_byte = len(text[:m.start(1)].encode("utf-8"))
+        end_byte = start_byte + len(source.encode("utf-8"))
