@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Build wheel + sdist
+        run: |
+          pip install build
+          python -m build
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          body: |
+            ## warp-zh ${{ github.ref_name }}
+
+            ### 一键安装
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/Majimin/warp-zh/main/install.sh | bash
+            ```
+
+            ### pip 安装
+            ```bash
+            pip install git+https://github.com/Majimin/warp-zh.git@${{ github.ref_name }}
+            ```
+
+            ### 使用
+            ```bash
+            git clone https://github.com/warpdotdev/warp ~/src/warp
+            warp-zh apply ~/src/warp
+            cd ~/src/warp && cargo build --release
+            ```
