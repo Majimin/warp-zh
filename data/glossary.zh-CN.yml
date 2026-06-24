@@ -1,0 +1,209 @@
+# warp-zh 简体中文术语表（基于 PR #11960 实际译文）
+# 格式：英文原文: 中文译文
+
+# PR #11960 原始译文
+All: 全部
+Personal: 个人
+Get started: 开始使用
+View Agents: 查看 AI 助手
+Manage Agents: 管理 AI 助手
+New Agent: 新建 AI 助手
+Agent Settings: AI 助手设置
+Clear filters: 清除筛选
+Clear all: 清除全部
+Search: 搜索
+Status: 状态
+Working: 进行中
+Done: 已完成
+Failed: 失败
+Source: 来源
+Created on: 创建时间
+Last 24 hours: 最近 24 小时
+Past 3 days: 过去 3 天
+Last week: 最近一周
+Has artifact: 包含产出
+Pull Request: 拉取请求
+Plan: 计划
+Screenshot: 截图
+Harness: 测试框架
+Environment: 环境
+Created by: 创建者
+None: 无
+Unknown: 未知
+Agent: AI 助手
+Executor: 执行者
+Runs: 运行记录
+Loading agents...: 正在加载 AI 助手...
+No results matched your filters: 没有符合筛选条件的结果
+Session expired: 会话已过期
+No session available: 无可用会话
+
+# 菜单栏
+File: 文件
+Edit: 编辑
+View: 视图
+Window: 窗口
+Help: 帮助
+About Warp: 关于 Warp
+Quit: 退出
+Minimize: 最小化
+Maximize: 最大化
+Fullscreen: 全屏
+
+# 标签页与窗格
+New Tab: 新建标签页
+Close Tab: 关闭标签页
+Rename Tab: 重命名标签页
+Split Pane Right: 向右分割窗格
+Split Pane Down: 向下分割窗格
+Close Pane: 关闭窗格
+Next Tab: 下一个标签页
+Previous Tab: 上一个标签页
+
+# 终端操作
+Clear Screen: 清屏
+Clear Scrollback: 清除滚动缓冲区
+Copy Output: 复制输出内容
+Copy Command: 复制命令
+Paste: 粘贴
+Select All: 全选
+Find: 查找
+Find and Replace: 查找与替换
+Command Palette: 命令面板
+New Session: 新建会话
+Close Session: 关闭会话
+
+# 通用动作
+Settings: 设置
+Preferences: 偏好设置
+Close: 关闭
+Open: 打开
+Save: 保存
+Cancel: 取消
+Confirm: 确认
+Delete: 删除
+Copy: 复制
+Cut: 剪切
+Undo: 撤销
+Redo: 重做
+Filter: 筛选
+Sort: 排序
+Refresh: 刷新
+Reload: 重新加载
+Download: 下载
+Upload: 上传
+Share: 分享
+Export: 导出
+Import: 导入
+Submit: 提交
+Apply: 应用
+Reset: 重置
+Clear: 清除
+Select: 选择
+Enable: 启用
+Disable: 禁用
+Show: 显示
+Hide: 隐藏
+Expand: 展开
+Collapse: 收起
+Move: 移动
+Rename: 重命名
+Create: 新建
+Add: 添加
+Remove: 删除
+Update: 更新
+Connect: 连接
+Disconnect: 断开
+Install: 安装
+Uninstall: 卸载
+Run: 运行
+Stop: 停止
+Pause: 暂停
+Resume: 继续
+Restart: 重启
+
+# 终端概念
+Terminal: 终端
+Shell: Shell
+Session: 会话
+Tab: 标签页
+Pane: 窗格
+Block: 块
+Command: 命令
+Output: 输出
+Input: 输入
+History: 历史记录
+Prompt: 提示符
+Working directory: 工作目录
+Variable: 变量
+Alias: 别名
+Script: 脚本
+
+# AI/Agent
+Agents: AI 助手
+AI: AI
+Task: 任务
+Workflow: 工作流
+Model: 模型
+Chat: 对话
+Suggestion: 建议
+Generate: 生成
+Explain: 解释
+
+# 设置
+Appearance: 外观
+Theme: 主题
+Font: 字体
+Color: 颜色
+Opacity: 透明度
+Privacy: 隐私
+Security: 安全
+Account: 账号
+Profile: 个人资料
+Notification: 通知
+Notifications: 通知
+Keyboard: 键盘
+Shortcut: 快捷键
+Keyboard Shortcuts: 键盘快捷键
+Language: 语言
+
+# 代码审查
+Commit: 提交
+Push: 推送
+Pull: 拉取
+Branch: 分支
+Merge: 合并
+Diff: 差异
+Review: 审查
+Comment: 评论
+Approve: 批准
+Stage: 暂存
+Unstage: 取消暂存
+Stash: 储藏
+
+# 状态
+Loading: 加载中
+Saving: 保存中
+Connecting: 连接中
+Error: 错误
+Warning: 警告
+Success: 成功
+Connected: 已连接
+Disconnected: 已断开
+Enabled: 已启用
+Disabled: 已禁用
+Active: 活跃
+Inactive: 不活跃
+
+# 导航
+Back: 返回
+Forward: 前进
+Home: 主页
+Next: 下一步
+Previous: 上一步
+Done: 已完成
+Finish: 完成
+Skip: 跳过
+Continue: 继续
+More: 更多
+Less: 更少
